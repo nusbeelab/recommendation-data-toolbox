@@ -103,12 +103,13 @@ def get_immediate_data_from_csv(filepath: str):
     return pd.concat([df, a_lotteries, b_lotteries], axis=1)
 
 
-def get_intermediate_data():
-    filenames = [
-        "RawDataExperiment1sorted.csv",
-        "RawDataExperiment2sorted.csv",
-        "RawDataExperiment3.csv",
-    ]
-    filepaths = [os.path.join(CWD, "data", filename) for filename in filenames]
-    dfs = [get_immediate_data_from_csv(filepath) for filepath in filepaths]
-    return pd.concat(dfs)
+FILENAMES = [
+    "RawDataExperiment1sorted.csv",
+    "RawDataExperiment2sorted.csv",
+    "RawDataExperiment3.csv",
+]
+
+
+def get_intermediate_data(experiment_number):
+    filepath = os.path.join(CWD, "data", FILENAMES[experiment_number - 1])
+    return get_immediate_data_from_csv(filepath)

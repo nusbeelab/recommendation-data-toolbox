@@ -1,14 +1,10 @@
 import unittest
 import numpy as np
-from param_estimation.param_estimation import (
-    decode_nparray,
-    eu_fn,
-    neg_log_lik_fn,
-    stack_1darrays,
-)
+
+from recommendation_data_toolbox.mle import eu_fn, neg_log_lik_fn
 
 
-class TestUtilityModel(unittest.TestCase):
+class TestMle(unittest.TestCase):
     def test_getEu_1d(self):
         actual = eu_fn(
             params=(1,),
@@ -35,17 +31,7 @@ class TestUtilityModel(unittest.TestCase):
             a_probs=np.array([[0.4, 0.5, 0.1], [0.3, 0.5, 0.2]]),
             b_values=np.array([[7, 8, 9], [10, 11, 12]]),
             b_probs=np.array([[0.3, 0.5, 0.2], [0.4, 0.5, 0.1]]),
-            data=np.array([0, 1]),
+            observed_data=np.array([0, 1]),
         )
         expected = 21.987994803602348
         self.assertTrue(np.allclose(actual, expected))
-
-    def test_stack1darrays(self):
-        arrs = [np.array([1]), np.array([1, 2, 3]), np.array([1, 2])]
-        expected = np.array([[1, 0, 0], [1, 2, 3], [1, 2, 0]])
-        self.assertTrue(np.array_equal(stack_1darrays(arrs), expected))
-
-    def test_decodeNparray(self):
-        self.assertTrue(
-            np.array_equal(decode_nparray("[1 2]", dtype=int), np.array([1, 2]))
-        )

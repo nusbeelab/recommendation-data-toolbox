@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from param_estimation.utility_functions import (
+from recommendation_data_toolbox.utility_functions import (
     crra_utility_fn_1param,
     crra_utility_fn_3params,
 )

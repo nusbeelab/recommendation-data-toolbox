@@ -7,7 +7,10 @@ from typing import Any, Callable, List, Union
 import numpy.typing as npt
 
 from param_estimation import CWD
-from param_estimation.utility_functions import utility_fn_1param
+from param_estimation.utility_functions import (
+    crra_utility_fn_1param,
+    crra_utility_fn_3params,
+)
 
 UtilityFunc = Callable[
     [tuple, Union[np.int_, npt.NDArray[np.int_]]],
@@ -77,7 +80,7 @@ def estimate_params_across_df(
     b_probs = get_probs_from_encodings(df["bProbs"])
     data = np.array(df["Risk"], dtype=bool)
 
-    if utility_fn == utility_fn_1param:
+    if utility_fn == crra_utility_fn_1param:
         mask = np.all(a_values >= 0, axis=1) & np.all(b_values >= 0, axis=1)
         a_values, a_probs, b_values, b_probs, data = (
             x[mask] for x in (a_values, a_probs, b_values, b_probs, data)
@@ -95,7 +98,10 @@ def estimate_params_across_df(
     )
 
 
-UTILITY_MODELS = {"1param": utility_fn_1param}
+UTILITY_MODELS = {
+    "crra1param": dict(utility_fn=crra_utility_fn_1param, params_num=1),
+    "crra3params": dict(utility_fn=crra_utility_fn_3params, params_num=3),
+}
 
 
 def estimate_params_by_subjects(filename: str, utility_model: str):
@@ -104,6 +110,6 @@ def estimate_params_by_subjects(filename: str, utility_model: str):
     df = pd.read_csv(filepath)
     return df.groupby("SubjID").apply(
         estimate_params_across_df,
-        x0=np.array([1]),
-        utility_fn=UTILITY_MODELS[utility_model],
+        x0=np.ones((UTILITY_MODELS[utility_model]["params_num"],)),
+        utility_fn=UTILITY_MODELS[utility_model]["utility_fn"],
     )

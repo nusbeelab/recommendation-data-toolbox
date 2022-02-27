@@ -20,7 +20,7 @@ def get_skewed_lottery_probs(lot_num: int):
     )
 
 
-def get_lottery_distribution(
+def unpack_lottery_distribution(
     high_val: int,
     high_prob: float,
     low_val: int,

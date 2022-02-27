@@ -37,7 +37,7 @@ def neg_log_lik_fn(
     return -np.log(norm.cdf(eu_deltas * signs)).sum(axis=-1)
 
 
-def mle(
+def mle_estimate(
     x0: npt.NDArray[(Any,)],
     utility_fn: UtilityFunc,
     a_values: npt.NDArray[np.int_],

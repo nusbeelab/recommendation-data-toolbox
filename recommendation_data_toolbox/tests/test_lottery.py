@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from recommendation_data_toolbox.lottery import get_lottery_distribution
+from recommendation_data_toolbox.lottery import unpack_lottery_distribution
 
 
 class TestLottery(unittest.TestCase):
     def test_getLotteryDist_lotNumberEqualsOne(self):
-        actual_values, actual_probs = get_lottery_distribution(
+        actual_values, actual_probs = unpack_lottery_distribution(
             20, 0.05, 10, 1, "-"
         )
         self.assertTrue(np.array_equal(actual_values, np.array([20, 10])))
@@ -26,7 +26,7 @@ class TestLottery(unittest.TestCase):
             0.03125,
             0.00390625,
         ]
-        actual_values, actual_probs = get_lottery_distribution(
+        actual_values, actual_probs = unpack_lottery_distribution(
             4, 1, 0, 9, "Symm"
         )
         self.assertTrue(np.array_equal(actual_values, expected_values))
@@ -46,7 +46,7 @@ class TestLottery(unittest.TestCase):
             0.6,
         ]
 
-        actual_values, actual_probs = get_lottery_distribution(
+        actual_values, actual_probs = unpack_lottery_distribution(
             9, 0.4, 10, 8, "R-skew"
         )
         self.assertTrue(np.array_equal(actual_values, expected_values))
@@ -56,7 +56,7 @@ class TestLottery(unittest.TestCase):
         expected_values = [50, 48, 44, 10]
         expected_probs = [0.2, 0.1, 0.1, 0.6]
 
-        actual_values, actual_probs = get_lottery_distribution(
+        actual_values, actual_probs = unpack_lottery_distribution(
             48, 0.4, 10, 3, "L-skew"
         )
         self.assertTrue(np.array_equal(actual_values, expected_values))

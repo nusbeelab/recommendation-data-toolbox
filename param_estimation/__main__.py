@@ -15,9 +15,9 @@ def generate_intermediate_data(experiment_number: int):
 
 
 def generate_estimated_parameters(filename: str):
-    estimate_params_by_subjects(filename, "1param").to_csv(
+    estimate_params_by_subjects(filename, "crra3params").to_csv(
         os.path.join(
-            CWD, f"./data/EstimatedParameters__{filename.split('.')[0]}.csv"
+            CWD, f"./data/Estimated3Parameters__{filename.split('.')[0]}.csv"
         )
     )
 

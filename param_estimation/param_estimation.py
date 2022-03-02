@@ -60,11 +60,17 @@ def estimate_params_across_df(
     )
 
 
-def estimate_params_by_subjects(filename: str, utility_model: str):
+def estimate_params(filename: str, utility_model: str, isPerSubject: bool):
     """Perform mle on a utility model"""
     filepath = os.path.join(CWD, "data", filename)
     df = pd.read_csv(filepath)
-    return df.groupby("SubjID").apply(
-        estimate_params_across_df,
-        utility_func_wrapper=get_utility_func_wrapper(utility_model),
+    return (
+        df.groupby("SubjID").apply(
+            estimate_params_across_df,
+            utility_func_wrapper=get_utility_func_wrapper(utility_model),
+        )
+        if isPerSubject
+        else estimate_params_across_df(
+            df, utility_func_wrapper=get_utility_func_wrapper(utility_model)
+        )
     )

@@ -1,4 +1,8 @@
-# Recommendation project: Data analysis
+# Recommendation project: Data Toolbox
+
+## `recommendation_data_toolbox` package
+
+## Estimation of parameters by command line
 
 ## Prerequisites
 
@@ -45,15 +49,13 @@
 
 ## Usage
 
-``
-python3 -m param_estimation generate_intermediate_data
+```
+python3 -m param_estimation generate_intermediate_data --experiment-number <experiment-number>
 
 ```
 
 ```
 
-python3 -m param_estimation estimate_params --model crra_1
-
-```
+python3 -m param_estimation estimate_params --experiment-number <experiment-number> --model <model> [--per-subject]
 
 ```

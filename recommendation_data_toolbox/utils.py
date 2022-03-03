@@ -3,13 +3,6 @@ from typing import Any, List
 import numpy.typing as npt
 
 
-def simplify_lottery(
-    values: npt.NDArray[np.int_], probs: npt.NDArray[np.float64]
-):
-    mask = probs > 0
-    return values[mask], probs[mask]
-
-
 def pad_zeros_1darray(arr: npt.NDArray[(Any,)], length: int):
     new_arr = np.zeros((length,))
     new_arr[: arr.shape[0]] = arr

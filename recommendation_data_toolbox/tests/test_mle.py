@@ -1,36 +1,34 @@
 import unittest
 import numpy as np
+import numpy.typing as npt
 
-from recommendation_data_toolbox.mle import eu_fn, neg_log_lik_fn
+from recommendation_data_toolbox.lottery import Lottery
+from recommendation_data_toolbox.mle import neg_log_lik_fn
 
 
 class TestMle(unittest.TestCase):
-    def test_getEu_1d(self):
-        actual = eu_fn(
-            params=(1,),
-            utility_fn=lambda params, x: x + params[0],
-            values=np.array([1, 2, 3]),
-            probs=np.array([0.4, 0.5, 0.1]),
-        )
-        self.assertTrue(np.allclose(actual, 2.7))
+    def test_negLogLikFn(self):
+        a_lotteries = [
+            Lottery(np.array([1, 2, 3]), np.array([0.4, 0.5, 0.1])),
+            Lottery(np.array([4, 5, 6]), np.array([0.3, 0.5, 0.2])),
+        ]
+        b_lotteries = [
+            Lottery(np.array([7, 8, 9]), np.array([0.3, 0.5, 0.2])),
+            Lottery(np.array([10, 11, 12]), np.array([0.4, 0.5, 0.1])),
+        ]
 
-    def test_getEu_2d(self):
-        actual = eu_fn(
-            params=(1,),
-            utility_fn=lambda params, x: x + params[0],
-            values=np.array([[1, 2, 3], [4, 5, 6]]),
-            probs=np.array([[0.4, 0.5, 0.1], [0.3, 0.5, 0.2]]),
-        )
-        self.assertTrue(np.allclose(actual, np.array([2.7, 5.9])))
+        def lottery_utility_func(
+            params: tuple,
+            outcomes: npt.NDArray[np.int_],
+            probs: npt.NDArray[np.float64],
+        ):
+            return np.sum(np.multiply(outcomes + params[0], probs), axis=-1)
 
-    def test_getNegLogLik(self):
         actual = neg_log_lik_fn(
             params=(1,),
-            utility_fn=lambda params, x: x + params[0],
-            a_values=np.array([[1, 2, 3], [4, 5, 6]]),
-            a_probs=np.array([[0.4, 0.5, 0.1], [0.3, 0.5, 0.2]]),
-            b_values=np.array([[7, 8, 9], [10, 11, 12]]),
-            b_probs=np.array([[0.3, 0.5, 0.2], [0.4, 0.5, 0.1]]),
+            lottery_utility_func=lottery_utility_func,
+            a_lotteries=a_lotteries,
+            b_lotteries=b_lotteries,
             observed_data=np.array([0, 1]),
         )
         expected = 21.987994803602348

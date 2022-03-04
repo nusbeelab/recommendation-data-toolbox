@@ -71,8 +71,8 @@ class InvalidOutcomeUtilityName(ValueError):
     pass
 
 
-def get_outcome_utility_model(name: str):
+def get_outcome_utility_model(model_name: str):
     try:
-        return OUTCOME_UTILITY_MODELS[name]
+        return OUTCOME_UTILITY_MODELS[model_name]
     except:
         raise InvalidOutcomeUtilityName()

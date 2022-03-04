@@ -4,25 +4,11 @@ from typing import Optional
 import numpy.typing as npt
 
 
-class Lottery:
-    def __init__(
-        self, outcomes: npt.NDArray[np.int_], probs: npt.NDArray[np.float64]
-    ):
-        self.outcomes = np.array(outcomes)
-        self.probs = np.array(probs)
-        self.outcomes, self.probs = simplify_lottery(self)
-
-    def __eq__(self, o):
-        return (
-            isinstance(o, Lottery)
-            and np.array_equal(o.outcomes, self.outcomes)
-            and np.allclose(o.probs, self.probs)
-        )
-
-
-def simplify_lottery(lottery: Lottery):
-    mask = lottery.probs > 0
-    return lottery.outcomes[mask], lottery.probs[mask]
+def simplify_lottery(
+    outcomes: npt.NDArray[np.int_], probs: npt.NDArray[np.float64]
+):
+    mask = probs > 0
+    return outcomes[mask], probs[mask]
 
 
 def get_skewed_lottery_probs(lot_num: int):
@@ -115,4 +101,4 @@ def unpack_lottery_distribution(
         )
     values = np.append(values, [low_val])
     probs = np.append(probs, [1 - high_prob])
-    return Lottery(values, probs)
+    return simplify_lottery(values, probs)

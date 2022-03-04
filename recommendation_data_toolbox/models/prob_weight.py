@@ -47,4 +47,6 @@ def get_prob_weight_model(lottery_utility_model_name: str):
     try:
         return PROB_WEIGHT_MODELS[lottery_utility_model_name]
     except:
-        raise InvalidLotteryUtilityModelName()
+        raise InvalidLotteryUtilityModelName(
+            f"{lottery_utility_model_name} is not a valid option for loterry utility model. Valid options: expected_utility, prospect_theory."
+        )

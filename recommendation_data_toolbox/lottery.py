@@ -1,8 +1,14 @@
 from math import comb
 import numpy as np
 from typing import Optional
+import numpy.typing as npt
 
-from .utils import simplify_lottery
+
+def simplify_lottery(
+    outcomes: npt.NDArray[np.int_], probs: npt.NDArray[np.float64]
+):
+    mask = probs > 0
+    return outcomes[mask], probs[mask]
 
 
 def get_skewed_lottery_probs(lot_num: int):
@@ -47,8 +53,7 @@ def unpack_lottery_distribution(
 
     Returns
     -------
-    values : np.ndarray
-    probs : np.ndarray
+    A Lottery object
 
     Raises
     ------

@@ -69,7 +69,11 @@ def main():
         "--model",
         dest="model",
         type=str,
-        choices=["expected_utility", "prospect_theory"],
+        choices=[
+            "expected_utility",
+            "prospect_theory",
+            "cumulative_prospect_theory",
+        ],
     )
     parser.add_argument(
         "--include-neg-domain", dest="isNegDomainIncluded", action="store_true"

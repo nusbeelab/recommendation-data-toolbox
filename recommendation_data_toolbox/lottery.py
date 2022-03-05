@@ -53,7 +53,8 @@ def unpack_lottery_distribution(
 
     Returns
     -------
-    A Lottery object
+    outcomes : numpy array of int
+    probs : numpy array of float64
 
     Raises
     ------

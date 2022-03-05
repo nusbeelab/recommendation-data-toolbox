@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Callable, List, Tuple, Union
+from typing import Callable, List, Tuple
 import numpy.typing as npt
 
 from recommendation_data_toolbox.constants import MAX_FLOAT64
@@ -89,7 +89,7 @@ def tk1992_cpt_pwf(params: Tuple[np.float64], probs: npt.NDArray[np.float64]):
     -------
     Weighted probabilities of the lottery according to cummulative prospect theory.
     """
-    sums = np.sum(roll_fill_last_dim(probs, -i) for i in range(probs.shape[-1]))
+    sums = sum(roll_fill_last_dim(probs, -i) for i in range(probs.shape[-1]))
     weights = tk1992_pt_pwf(params, sums)
     marginal_weights = np.subtract(weights, roll_fill_last_dim(weights, -1))
     return marginal_weights

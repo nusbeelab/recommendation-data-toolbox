@@ -2,21 +2,11 @@ import unittest
 import numpy as np
 import numpy.typing as npt
 
-from recommendation_data_toolbox.lottery import Lottery
 from recommendation_data_toolbox.mle import neg_log_lik_fn
 
 
 class TestMle(unittest.TestCase):
     def test_negLogLikFn(self):
-        a_lotteries = [
-            Lottery(np.array([1, 2, 3]), np.array([0.4, 0.5, 0.1])),
-            Lottery(np.array([4, 5, 6]), np.array([0.3, 0.5, 0.2])),
-        ]
-        b_lotteries = [
-            Lottery(np.array([7, 8, 9]), np.array([0.3, 0.5, 0.2])),
-            Lottery(np.array([10, 11, 12]), np.array([0.4, 0.5, 0.1])),
-        ]
-
         def lottery_utility_func(
             params: tuple,
             outcomes: npt.NDArray[np.int_],
@@ -27,8 +17,10 @@ class TestMle(unittest.TestCase):
         actual = neg_log_lik_fn(
             params=(1,),
             lottery_utility_func=lottery_utility_func,
-            a_lotteries=a_lotteries,
-            b_lotteries=b_lotteries,
+            a_outcomes=np.array([[1, 2, 3], [4, 5, 6]]),
+            a_probs=np.array([[0.4, 0.5, 0.1], [0.3, 0.5, 0.2]]),
+            b_outcomes=np.array([[7, 8, 9], [10, 11, 12]]),
+            b_probs=np.array([[0.3, 0.5, 0.2], [0.4, 0.5, 0.1]]),
             observed_data=np.array([0, 1]),
         )
         expected = 21.987994803602348

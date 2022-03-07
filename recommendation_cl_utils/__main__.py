@@ -1,8 +1,8 @@
 import os
 from argparse import ArgumentParser
-from param_estimation import CWD
-from param_estimation.param_estimation import estimate_params
-from param_estimation.raw_data_transform import get_intermediate_data
+from . import CWD
+from .param_estimation import estimate_params
+from .raw_data_transform import get_intermediate_data
 
 
 def generate_intermediate_data(experiment_number: int):

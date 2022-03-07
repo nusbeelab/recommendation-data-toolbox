@@ -2,10 +2,10 @@ import os
 import time
 import numpy as np
 import pandas as pd
-from param_estimation import CWD
+from . import CWD
 
 from recommendation_data_toolbox.mle import estimate_max_lik_params
-from param_estimation.utils import (
+from .utils import (
     get_probs_from_encodings,
     get_vals_from_encodings,
 )

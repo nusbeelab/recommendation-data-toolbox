@@ -1,28 +1,18 @@
 import numpy as np
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 import numpy.typing as npt
+from recommendation_data_toolbox.constants import MAX_FLOAT64
+
+from recommendation_data_toolbox.lottery_utility.exceptions import (
+    DomainError,
+    InvalidOutcomeUtilityName,
+)
 
 
 OutcomeUtilityFunc = Union[
     Callable[[tuple, np.int_], np.float64],
     Callable[[tuple, npt.NDArray[np.int_]], npt.NDArray[np.float64]],
 ]  # params, outcome -> utility of outcome
-
-
-class OutcomeUtilityModel:
-    def __init__(
-        self,
-        outcome_utility_func: OutcomeUtilityFunc,
-        bounds: List[Tuple[np.float64, np.float64]],
-        initial_params: List[np.float64],
-    ):
-        self.outcome_utility_func = outcome_utility_func
-        self.bounds = bounds
-        self.initial_params = initial_params
-
-
-class DomainError(ValueError):
-    pass
 
 
 def power_uf_on_nonneg_outcomes(
@@ -55,24 +45,52 @@ def power_uf_on_real_outcomes(
     return np.add(utility_nonneg_x, utility_neg_x)
 
 
-OUTCOME_UTILITY_MODELS: Dict[str, OutcomeUtilityModel] = {
-    "power_nonneg": OutcomeUtilityModel(
+class OutcomeUtilityWrapper:
+    def __init__(self, func, bounds, initial_params):
+        self.func = func
+        self.bounds = bounds
+        self.initial_params = initial_params
+
+
+OUTCOME_UTILITY_WRAPPERS = {
+    "power_nonneg": OutcomeUtilityWrapper(
         power_uf_on_nonneg_outcomes, [(0.0, 1.0)], [0.5]
     ),
-    "power": OutcomeUtilityModel(
+    "power": OutcomeUtilityWrapper(
         power_uf_on_real_outcomes,
-        [(0.0, 1.0), (1.0, np.finfo(np.float64).max), (0.0, 1.0)],
+        [(0.0, 1.0), (1.0, MAX_FLOAT64), (0.0, 1.0)],
         [0.5, 2.0, 0.5],
     ),
 }
 
 
-class InvalidOutcomeUtilityName(ValueError):
-    pass
+# class OutcomeUtility:
+#     def __init__(self, func: str, params: Optional[List[np.float64]] = None):
+#         """
+#         Parameters
+#         ---------
+#         func : str
+#             Either "power" or "power_nonneg"
+#         params : list
+#             Values for the parameters.
+#         """
+#         try:
+#             self.func = OUTCOME_UTILITY_WRAPPERS[func].func
+#             self.params = params
+#         except:
+#             raise InvalidOutcomeUtilityName()
+
+#     def compute(self, x: Union[int, npt.NDArray[np.int_]]):
+#         return self.func(self.params, x)
 
 
-def get_outcome_utility_model(model_name: str):
-    try:
-        return OUTCOME_UTILITY_MODELS[model_name]
-    except:
-        raise InvalidOutcomeUtilityName()
+def get_outcome_utility_func(outcome_utility: str):
+    return OUTCOME_UTILITY_WRAPPERS[outcome_utility].func
+
+
+def get_outcome_utility_bounds(outcome_utility: str):
+    return OUTCOME_UTILITY_WRAPPERS[outcome_utility].bounds
+
+
+def get_outcome_utility_initial_params(outcome_utility: str):
+    return OUTCOME_UTILITY_WRAPPERS[outcome_utility].initial_params

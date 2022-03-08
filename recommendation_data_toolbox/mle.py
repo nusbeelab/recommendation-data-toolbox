@@ -4,9 +4,7 @@ from scipy.stats import norm
 from scipy.optimize import basinhopping
 import numpy.typing as npt
 
-from recommendation_data_toolbox.lottery_utility import (
-    get_lottery_utility_model,
-)
+from recommendation_data_toolbox.lottery_utility import get_lottery_utility
 
 
 def neg_log_lik_fn(
@@ -40,18 +38,18 @@ def estimate_max_lik_params(
     outcome_utility_name: str,
     is_with_constraints: bool = True,
 ):
-    model = get_lottery_utility_model(
+    func, bounds, initial_params = get_lottery_utility(
         lottery_utility_name, outcome_utility_name
     )
 
     return basinhopping(
         func=neg_log_lik_fn,
-        x0=model.inital_params,
+        x0=initial_params,
         minimizer_kwargs=dict(
-            bounds=model.bounds if is_with_constraints else None,
+            bounds=bounds if is_with_constraints else None,
             method="Nelder-Mead",
             args=(
-                model.lottery_utility_func,
+                func,
                 a_outcomes,
                 a_probs,
                 b_outcomes,

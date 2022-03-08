@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from recommendation_data_toolbox.collaborative_filtering.user_based import (
+from recommendation_data_toolbox.rec.cf.user_based import (
     UcbfRecommender,
     same_decision_frac,
 )

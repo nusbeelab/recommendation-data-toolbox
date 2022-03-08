@@ -1,9 +1,7 @@
 from typing import Callable, List, Optional, TypeVar
 
-from recommendation_data_toolbox.collaborative_filtering.cf_recommender import (
-    CfRecommender,
-)
 from recommendation_data_toolbox.lottery import DecisionHistory, LotteryPair
+from recommendation_data_toolbox.rec import Recommender
 
 
 def same_decision_frac(a: DecisionHistory, b: DecisionHistory):
@@ -30,7 +28,7 @@ def get_nearest_neighbors(
     return [records[i] for i in knn_indices]
 
 
-class UcbfRecommender(CfRecommender):
+class UcbfRecommender(Recommender):
     """A user-based collaborative filtering (UCBF) recommender.
     Similarity between subjects is computed by the fraction of how many lottery pairs
     are given the same response by the two subjects among their history.
@@ -48,14 +46,18 @@ class UcbfRecommender(CfRecommender):
             raise ValueError(
                 "k must not be greater than the number of records."
             )
-        super().__init__(history, records)
-        self.knns = get_nearest_neighbors(
-            records=self.records,
-            query=self.history,
-            k=k,
-            metric=same_decision_frac,
-        )
+        self.records = records
+        self.history = history
+        self.k = k
+        self.knns = None
 
     def rec(self, lottery_pair: LotteryPair):
+        if self.knns == None:
+            self.knns = get_nearest_neighbors(
+                records=self.records,
+                query=self.history,
+                k=self.k,
+                metric=same_decision_frac,
+            )
         decisions_in_records = [his[lottery_pair] for his in self.knns]
         return sum(decisions_in_records) / len(decisions_in_records) >= 0.5

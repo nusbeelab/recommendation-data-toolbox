@@ -19,8 +19,3 @@ class NoneRecommender(Recommender):
 class RandomRecommender(Recommender):
     def rec(self, lottery_pair: LotteryPair):
         return random.random() < 0.5
-
-
-class RecommenderWithHistory(Recommender):
-    def __init__(self, history: DecisionHistory):
-        self.history = history

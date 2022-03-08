@@ -4,7 +4,7 @@ from scipy.stats import norm
 from scipy.optimize import basinhopping
 import numpy.typing as npt
 
-from recommendation_data_toolbox.models.lottery_utility import (
+from recommendation_data_toolbox.lottery_utility import (
     get_lottery_utility_model,
 )
 

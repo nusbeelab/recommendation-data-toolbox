@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from recommendation_data_toolbox.models.prob_weight import (
+from recommendation_data_toolbox.lottery_utility.prob_weight import (
     identity_pwf,
     tk1992_cpt_pwf,
     tk1992_pt_pwf,

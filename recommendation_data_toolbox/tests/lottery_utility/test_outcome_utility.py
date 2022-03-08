@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from recommendation_data_toolbox.models.outcome_utility import (
+from recommendation_data_toolbox.lottery_utility.outcome_utility import (
     power_uf_on_nonneg_outcomes,
     power_uf_on_real_outcomes,
 )

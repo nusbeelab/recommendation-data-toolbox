@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from param_estimation import CWD
+from . import CWD
 from recommendation_data_toolbox.lottery import unpack_lottery_distribution
 
 

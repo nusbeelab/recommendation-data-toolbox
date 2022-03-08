@@ -2,13 +2,13 @@
 
 ## `recommendation_data_toolbox` package
 
-## Estimation of parameters by command line
+## Command-line utilities
 
-## Prerequisites
+### Prerequisites
 
 - python3
 
-## Setup in local machine
+### Setup in local machine
 
 1. In terminal, navigate to the folder in which the repository will be located. Clone the repository here.
 
@@ -47,7 +47,9 @@
    pip3 install -r requirements.txt
    ```
 
-## Usage
+### Usage
+
+#### Estimation of parameters by command line
 
 ```
 python3 -m param_estimation generate_intermediate_data --experiment-number <experiment-number>
@@ -56,6 +58,6 @@ python3 -m param_estimation generate_intermediate_data --experiment-number <expe
 
 ```
 
-python3 -m param_estimation estimate_params --experiment-number <experiment-number> --model <model> [--per-subject]
+python3 -m param_estimation estimate_params --experiment-number <experiment-number> --model <model> [--per-subject] [--include-neg-domain]
 
 ```

@@ -1,11 +1,11 @@
 import numpy as np
 import numpy.typing as npt
 
-from recommendation_data_toolbox.models.outcome_utility import (
+from .outcome_utility import (
     OutcomeUtilityModel,
     get_outcome_utility_model,
 )
-from recommendation_data_toolbox.models.prob_weight import (
+from .prob_weight import (
     ProbWeightModel,
     get_prob_weight_model,
 )

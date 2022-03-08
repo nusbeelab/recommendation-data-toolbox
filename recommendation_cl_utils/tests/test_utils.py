@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from param_estimation.utils import decode_str_encoded_nparray
+from recommendation_cl_utils.utils import decode_str_encoded_nparray
 
 
 class TestUtils(unittest.TestCase):

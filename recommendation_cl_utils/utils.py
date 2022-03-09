@@ -23,3 +23,11 @@ def get_vals_from_encodings(vals: npt.ArrayLike):
 
 def get_probs_from_encodings(probs: npt.ArrayLike):
     return stack_1darrays([decode_str_encoded_nparray(prob) for prob in probs])
+
+
+def snakecase_to_camelcase(snakecase: str):
+    words = snakecase.split("_")
+    words = [
+        word.capitalize() if i > 0 else word for i, word in enumerate(words)
+    ]
+    return "".join(words)

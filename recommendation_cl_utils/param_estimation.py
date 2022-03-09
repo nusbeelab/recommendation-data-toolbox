@@ -34,8 +34,8 @@ def estimate_params_across_df(
         b_outcomes=b_outcomes,
         b_probs=b_probs,
         observed_data=observed_data,
-        lottery_utility_name=model,
-        outcome_utility_name=uf_model,
+        lottery_utility=model,
+        outcome_utility=uf_model,
         is_with_constraints=is_with_constraints,
     )
     seconds_elapsed = time.time() - start_s
@@ -58,13 +58,14 @@ def estimate_params_across_df(
 
 
 def estimate_params(
-    filename: str,
+    experiment_number: int,
     model: str,
     is_neg_domain_included: bool,
     is_with_constraint: bool,
     is_per_subject: bool,
 ):
     """Perform mle on a utility model"""
+    filename = f"IntermediateDataExperiment{experiment_number}.csv"
     filepath = os.path.join(CWD, "data", filename)
     df = pd.read_csv(filepath)
     args = dict(

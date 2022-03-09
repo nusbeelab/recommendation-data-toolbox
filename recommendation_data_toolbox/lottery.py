@@ -42,15 +42,11 @@ class LotteryPair:
     def __init__(self, a: Lottery, b: Lottery):
         if a < b:
             a, b = b, a
-        self.high = a
-        self.low = b
+        self.a = a
+        self.b = b
 
     def __eq__(self, o):
-        return (
-            isinstance(o, LotteryPair)
-            and self.high == o.high
-            and self.low == o.low
-        )
+        return isinstance(o, LotteryPair) and self.a == o.a and self.b == o.b
 
 
 class DecisionHistory:

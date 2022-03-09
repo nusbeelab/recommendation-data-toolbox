@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from recommendation_data_toolbox.lottery_utility.lottery_utility import (
+from recommendation_data_toolbox.lottery_utility import (
     get_lottery_utility_func,
 )
 

@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 
+from recommendation_cl_utils.constants import CPC15_DATASET_FILENAMES
+
 from . import CWD
 from recommendation_data_toolbox.lottery import unpack_lottery_distribution
 
@@ -39,13 +41,8 @@ def get_immediate_data_from_csv(filepath: str):
     return pd.concat([df, a_lotteries, b_lotteries], axis=1)
 
 
-FILENAMES = [
-    "RawDataExperiment1sorted.csv",
-    "RawDataExperiment2sorted.csv",
-    "RawDataExperiment3.csv",
-]
-
-
 def get_intermediate_data(experiment_number):
-    filepath = os.path.join(CWD, "data", FILENAMES[experiment_number - 1])
+    filepath = os.path.join(
+        CWD, "data", CPC15_DATASET_FILENAMES[experiment_number - 1]
+    )
     return get_immediate_data_from_csv(filepath)

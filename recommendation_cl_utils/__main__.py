@@ -1,5 +1,8 @@
 import os
 from argparse import ArgumentParser
+from recommendation_cl_utils.mock_experiment_data import get_mock_data
+
+from recommendation_cl_utils.utils import snakecase_to_camelcase
 from . import CWD
 from .param_estimation import estimate_params
 from .raw_data_transform import get_intermediate_data
@@ -16,14 +19,6 @@ def generate_intermediate_data(experiment_number: int):
     )
 
 
-def snakecase_to_camelcase(snakecase: str):
-    words = snakecase.split("_")
-    words = [
-        word.capitalize() if i > 0 else word for i, word in enumerate(words)
-    ]
-    return "".join(words)
-
-
 def generate_estimated_parameters(
     experiment_number: int,
     model: str,
@@ -31,12 +26,9 @@ def generate_estimated_parameters(
     is_with_constraints: bool,
     is_per_subject: bool,
 ):
-    intermediate_data_filename = (
-        f"IntermediateDataExperiment{experiment_number}.csv"
-    )
 
     results = estimate_params(
-        intermediate_data_filename,
+        experiment_number,
         model,
         is_neg_domain_included,
         is_with_constraints,
@@ -53,6 +45,14 @@ def generate_estimated_parameters(
     )
     output_filepath = f"./data/mle_{experiment_label}_{model_label}_{domain_label}_{constraints_label}_{per_subject_label}.csv"
     results.to_csv(os.path.join(CWD, output_filepath))
+
+
+def generate_mock_experiment_data():
+    preexperiment_data, experiment_data = get_mock_data()
+    preexperiment_data.to_csv(
+        os.path.join(CWD, "data", "MockPreexperimentData.csv")
+    )
+    experiment_data.to_csv(os.path.join(CWD, "data", "MockExperimentData.csv"))
 
 
 def main():
@@ -95,6 +95,8 @@ def main():
             args.isWithConstraints,
             args.isPerSubject,
         )
+    elif args.action == "generate_mock_experiment_data":
+        generate_mock_experiment_data()
 
 
 if __name__ == "__main__":

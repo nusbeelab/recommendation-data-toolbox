@@ -13,9 +13,9 @@ class Lottery:
         The outcomes are sorted in descending order.
         """
         outcomes, probs = simplify_lottery(outcomes, probs)
-        ordering = outcomes.argsort()[::-1]
-        self.outcomes = outcomes[ordering]
-        self.probs = probs[ordering]
+        order = outcomes.argsort()[::-1]
+        self.outcomes = outcomes[order]
+        self.probs = probs[order]
 
     def __eq__(self, o):
         return (

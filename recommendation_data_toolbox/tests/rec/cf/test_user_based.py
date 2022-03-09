@@ -2,55 +2,30 @@ import unittest
 
 import numpy as np
 
-from recommendation_data_toolbox.rec.cf.user_based import (
-    UcbfRecommender,
-    same_decision_frac,
-)
-from recommendation_data_toolbox.lottery import DecisionHistory
-from recommendation_data_toolbox.tests.mock_data import (
-    lot_pair_0,
-    lot_pair_1,
-    lot_pair_2,
-    lot_pair_3,
-    lot_pair_4,
-)
+from recommendation_data_toolbox.rec.cf.user_based import UcbfRecommender
 
 
 class TestUserBased(unittest.TestCase):
-    def test_sameDecisionFrac(self):
-        decision_his_a = DecisionHistory(
-            [lot_pair_0, lot_pair_1, lot_pair_2, lot_pair_3],
-            [True, False, False, True],
-        )
-        decision_his_b = DecisionHistory(
-            [lot_pair_0, lot_pair_2, lot_pair_3, lot_pair_4],
-            [False, False, True, True],
-        )
-        self.assertTrue(
-            np.allclose(
-                same_decision_frac(decision_his_a, decision_his_b), 2 / 3
-            )
-        )
-
     def test_ubcfRecommender(self):
-        all_lot_pairs = [lot_pair_0, lot_pair_1, lot_pair_2, lot_pair_3]
-        decision_his_0 = DecisionHistory(
-            all_lot_pairs, [True, False, True, False]
+        rating_matrix = np.array(
+            [
+                [0, 1, 0, 1, 0],
+                [1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0],
+                [1, 1, 1, 0, 0],
+                [0, 0, 1, 0, 0],
+            ]
         )
-        decision_his_1 = DecisionHistory(
-            all_lot_pairs, [False, True, False, True]
+        recommender = UcbfRecommender(
+            rating_matrix=rating_matrix,
+            R_lot_pair_ids=np.array([1, 4, 3, 0, 2]),
+            subj_lot_pair_ids=np.array([3, 2, 1]),
+            decisions=np.array([0, 1, 0]),
+            n_neighbors=3,
         )
-        decision_his_2 = DecisionHistory(
-            all_lot_pairs, [True, True, False, False]
-        )
-        decision_his_3 = DecisionHistory(
-            [lot_pair_0, lot_pair_1, lot_pair_2], [True, False, False]
-        )
-        records = [decision_his_0, decision_his_1, decision_his_2]
-        recommender = UcbfRecommender(decision_his_3, records, 2)
-        actual = recommender.rec(lot_pair_3)
-        expected = False
-        self.assertEqual(actual, expected)
+        expected_rec = 0
+        actual_rec = recommender.rec(0)
+        self.assertEqual(actual_rec, expected_rec)
 
 
 if __name__ == "__main__":

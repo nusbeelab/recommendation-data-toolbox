@@ -17,7 +17,7 @@ def neg_log_lik_fn(
     b_outcomes: npt.NDArray[np.int_],
     b_probs: npt.NDArray[np.float64],
     observed_data: npt.NDArray[
-        np.bool_
+        np.int_
     ],  # 0 if option A was chosen, 1 otherwise
 ):
     eu_deltas = np.subtract(
@@ -33,7 +33,7 @@ def estimate_max_lik_params(
     a_probs: npt.NDArray[np.float64],
     b_outcomes: npt.NDArray[np.int_],
     b_probs: npt.NDArray[np.float64],
-    observed_data: npt.NDArray[np.bool_],
+    observed_data: npt.NDArray[np.int_],
     lottery_utility: str,
     outcome_utility: str,
     initial_params: Optional[tuple] = None,

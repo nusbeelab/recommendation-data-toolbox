@@ -1,11 +1,10 @@
-from functools import total_ordering
 from math import comb
+from multiprocessing.sharedctypes import Value
 import numpy as np
 from typing import List, Optional
 import numpy.typing as npt
 
 
-@total_ordering
 class Lottery:
     def __init__(
         self, outcomes: npt.NDArray[np.int_], probs: npt.NDArray[np.float64]
@@ -25,23 +24,12 @@ class Lottery:
             and np.allclose(self.probs, o.probs)
         )
 
-    def __lt__(self, o):
-        if not isinstance(o, Lottery):
-            raise ValueError(
-                "A Lottery object can only be compared to another Lottery object."
-            )
-        return (expected_outcome(self) < expected_outcome(o)) or (
-            lottery_sd(self) > lottery_sd(o)
-        )
-
     def __str__(self):
         return f"Outcomes: {self.outcomes}; Probs: {self.probs}"
 
 
 class LotteryPair:
     def __init__(self, a: Lottery, b: Lottery):
-        if a < b:
-            a, b = b, a
         self.a = a
         self.b = b
 
@@ -49,22 +37,29 @@ class LotteryPair:
         return isinstance(o, LotteryPair) and self.a == o.a and self.b == o.b
 
 
-class DecisionHistory:
-    def __init__(self, lottery_pairs: List[LotteryPair], decisions: List[bool]):
-        if len(lottery_pairs) != len(decisions):
-            raise ValueError(
-                "lottery_pairs and decisions should have the same length."
-            )
+class LotteryPairManager:
+    def __init__(self, lottery_pairs: List[LotteryPair]):
         self.lottery_pairs = list(lottery_pairs)
-        self.decisions = list(decisions)
 
-    def __getitem__(self, key: LotteryPair):
-        idx = next(
-            i
-            for i, lot_pair in enumerate(self.lottery_pairs)
-            if lot_pair == key
-        )
-        return self.decisions[idx]
+    def convert_lottery_pairs_to_ids(self, lottery_pairs: List[LotteryPair]):
+        try:
+            return [
+                # manually check for equal lottery pairs instead of pre-compute
+                # a hashmap so as to avoid calling hash on float attributes.
+                next(
+                    i
+                    for i, lot_pair in enumerate(self.lottery_pairs)
+                    if lot_pair == lottery_pair
+                )
+                for lottery_pair in lottery_pairs
+            ]
+        except StopIteration:
+            raise ValueError(
+                "lottery_pair is not configured in manager's store."
+            )
+
+    def convert_ids_to_lottery_pairs(self, ids: List[int]):
+        return [self.lottery_pairs[id] for id in ids]
 
 
 def expected_outcome(lot: Lottery) -> np.float64:

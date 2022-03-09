@@ -1,12 +1,10 @@
-from typing import Callable
+from typing import Callable, Optional
 import numpy as np
 from scipy.stats import norm
 from scipy.optimize import basinhopping
 import numpy.typing as npt
 
-from recommendation_data_toolbox.lottery_utility import (
-    get_lottery_utility_model,
-)
+from recommendation_data_toolbox.lottery_utility import get_lottery_utility
 
 
 def neg_log_lik_fn(
@@ -36,22 +34,23 @@ def estimate_max_lik_params(
     b_outcomes: npt.NDArray[np.int_],
     b_probs: npt.NDArray[np.float64],
     observed_data: npt.NDArray[np.bool_],
-    lottery_utility_name: str,
-    outcome_utility_name: str,
+    lottery_utility: str,
+    outcome_utility: str,
+    initial_params: Optional[tuple] = None,
     is_with_constraints: bool = True,
 ):
-    model = get_lottery_utility_model(
-        lottery_utility_name, outcome_utility_name
+    func, bounds, default_initial_params = get_lottery_utility(
+        lottery_utility, outcome_utility
     )
 
     return basinhopping(
         func=neg_log_lik_fn,
-        x0=model.inital_params,
+        x0=initial_params or default_initial_params,
         minimizer_kwargs=dict(
-            bounds=model.bounds if is_with_constraints else None,
+            bounds=bounds if is_with_constraints else None,
             method="Nelder-Mead",
             args=(
-                model.lottery_utility_func,
+                func,
                 a_outcomes,
                 a_probs,
                 b_outcomes,

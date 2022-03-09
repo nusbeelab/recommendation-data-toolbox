@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from random import random
 from typing import Optional
 
-from recommendation_data_toolbox.lottery import DecisionHistory, LotteryPair
+from recommendation_data_toolbox.lottery import LotteryPair
 
 
 class Recommender(metaclass=ABCMeta):
@@ -19,8 +19,3 @@ class NoneRecommender(Recommender):
 class RandomRecommender(Recommender):
     def rec(self, lottery_pair: LotteryPair):
         return random.random() < 0.5
-
-
-class RecommenderWithHistory(Recommender):
-    def __init__(self, history: DecisionHistory):
-        self.history = history

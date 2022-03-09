@@ -52,12 +52,12 @@
 #### Estimation of parameters by command line
 
 ```
-python3 -m param_estimation generate_intermediate_data --experiment-number <experiment-number>
+python3 -m recommendation_cl_utils generate_intermediate_data --experiment-number <experiment-number>
 
 ```
 
 ```
 
-python3 -m param_estimation estimate_params --experiment-number <experiment-number> --model <model> [--per-subject] [--include-neg-domain]
+python3 -m recommendation_cl_utils estimate_params --experiment-number <experiment-number> --model <model> [--per-subject] [--include-neg-domain]
 
 ```

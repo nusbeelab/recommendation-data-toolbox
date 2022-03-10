@@ -55,4 +55,4 @@ class IbcfRecommender(NbcfRecommender):
         self.knn_classifier.fit(X, y)
 
         input_X = self.rating_matrix[:, lot_pair_id]
-        return self.knn_classifier.predict([input_X])
+        return self.knn_classifier.predict([input_X])[0]

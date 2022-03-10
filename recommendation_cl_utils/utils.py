@@ -6,7 +6,7 @@ from recommendation_cl_utils import CWD
 from recommendation_data_toolbox.utils import stack_1darrays
 
 
-def get_full_data_filepath(filename):
+def get_fullpath_to_datafile(filename):
     return os.path.join(CWD, "data", filename)
 
 
@@ -39,11 +39,7 @@ def snakecase_to_camelcase(snakecase: str):
     return "".join(words)
 
 
-def get_accuracy(actual: npt.ArrayLike, preds: npt.ArrayLike):
-    if len(actual) != len(preds):
-        raise ValueError(
-            "Two array-like objects must be of the same size to compute accuracy."
-        )
-    actual = np.array(actual)
-    preds = np.array(preds)
-    return sum(actual == preds) / len(actual)
+def get_accuracy(actual: npt.NDArray, preds: npt.NDArray):
+    if actual.shape != preds.shape:
+        raise ValueError(f"{actual.shape} != {preds.shape}")
+    return np.sum(actual == preds, axis=-1) / actual.shape[-1]

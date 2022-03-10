@@ -50,9 +50,11 @@ def generate_estimated_parameters(
 def generate_mock_experiment_data():
     preexperiment_data, experiment_data = get_mock_data()
     preexperiment_data.to_csv(
-        os.path.join(CWD, "data", "MockPreexperimentData.csv")
+        os.path.join(CWD, "data", "MockPreexperimentData.csv"), index=False
     )
-    experiment_data.to_csv(os.path.join(CWD, "data", "MockExperimentData.csv"))
+    experiment_data.to_csv(
+        os.path.join(CWD, "data", "MockExperimentData.csv"), index=False
+    )
 
 
 def main():

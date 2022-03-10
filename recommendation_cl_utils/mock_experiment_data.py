@@ -17,7 +17,6 @@ def get_mock_data_from_df(df: pd.DataFrame, experiment_number):
         + f"_{experiment_number}_"
         + df["Trial"].astype(str)
     )
-    df = df.set_index("SubjID")
     df = df.groupby("SubjID").filter(lambda x: len(x) == 30)
     df = df.drop("Trial", axis=1)
     return df
@@ -32,4 +31,10 @@ def get_mock_data():
             for idx, filename in enumerate(CPC15_DATASET_FILENAMES)
         ]
     )
-    return train_test_split(df, test_size=0.5, random_state=1234)
+    preexperiment_subj_ids, experiment_subj_ids = train_test_split(
+        df["SubjID"].drop_duplicates(), test_size=0.5, random_state=1234
+    )
+    return (
+        df[df["SubjID"].isin(preexperiment_subj_ids)],
+        df[df["SubjID"].isin(experiment_subj_ids)],
+    )

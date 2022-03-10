@@ -1,7 +1,13 @@
+import os
 import numpy as np
 import numpy.typing as npt
+from recommendation_cl_utils import CWD
 
 from recommendation_data_toolbox.utils import stack_1darrays
+
+
+def get_full_data_filepath(filename):
+    return os.path.join(CWD, "data", filename)
 
 
 def decode_str_encoded_nparray(
@@ -31,3 +37,13 @@ def snakecase_to_camelcase(snakecase: str):
         word.capitalize() if i > 0 else word for i, word in enumerate(words)
     ]
     return "".join(words)
+
+
+def get_accuracy(actual: npt.ArrayLike, preds: npt.ArrayLike):
+    if len(actual) != len(preds):
+        raise ValueError(
+            "Two array-like objects must be of the same size to compute accuracy."
+        )
+    actual = np.array(actual)
+    preds = np.array(preds)
+    return sum(actual == preds) / len(actual)

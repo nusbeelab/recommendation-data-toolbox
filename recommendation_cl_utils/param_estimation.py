@@ -1,11 +1,10 @@
-import os
 import time
 import numpy as np
 import pandas as pd
-from . import CWD
 
 from recommendation_data_toolbox.mle import estimate_max_lik_params
 from .utils import (
+    get_full_data_filepath,
     get_probs_from_encodings,
     get_vals_from_encodings,
 )
@@ -66,8 +65,7 @@ def estimate_params(
 ):
     """Perform mle on a utility model"""
     filename = f"IntermediateDataExperiment{experiment_number}.csv"
-    filepath = os.path.join(CWD, "data", filename)
-    df = pd.read_csv(filepath)
+    df = pd.read_csv(get_full_data_filepath(filename))
     args = dict(
         model=model,
         uf_model="power" if is_neg_domain_included else "power_nonneg",

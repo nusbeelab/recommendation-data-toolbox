@@ -1,9 +1,8 @@
-import os
 import pandas as pd
 
 from recommendation_cl_utils.constants import CPC15_DATASET_FILENAMES
+from recommendation_cl_utils.utils import get_full_data_filepath
 
-from . import CWD
 from recommendation_data_toolbox.lottery import unpack_lottery_distribution
 
 
@@ -42,7 +41,7 @@ def get_immediate_data_from_csv(filepath: str):
 
 
 def get_intermediate_data(experiment_number):
-    filepath = os.path.join(
-        CWD, "data", CPC15_DATASET_FILENAMES[experiment_number - 1]
+    filepath = get_full_data_filepath(
+        CPC15_DATASET_FILENAMES[experiment_number - 1]
     )
     return get_immediate_data_from_csv(filepath)

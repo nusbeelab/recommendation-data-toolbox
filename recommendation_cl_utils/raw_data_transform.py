@@ -3,7 +3,7 @@ import pandas as pd
 from recommendation_cl_utils.constants import CPC15_DATASET_FILENAMES
 from recommendation_cl_utils.utils import get_fullpath_to_datafile
 
-from recommendation_data_toolbox.lottery import unpack_lottery_distribution
+from recommendation_data_toolbox.cpc2015 import unpack_lottery_distribution
 
 
 def get_a_lottery_from_row(row: pd.Series):

@@ -13,24 +13,23 @@ from .utils import (
 def estimate_params_across_df(
     df: pd.DataFrame, model: str, uf_model: str, is_with_constraints: bool
 ):
-    a_outcomes = get_vals_from_encodings(df["aValues"])
+    a_ocs = get_vals_from_encodings(df["aValues"])
     a_probs = get_probs_from_encodings(df["aProbs"])
-    b_outcomes = get_vals_from_encodings(df["bValues"])
+    b_ocs = get_vals_from_encodings(df["bValues"])
     b_probs = get_probs_from_encodings(df["bProbs"])
     observed_data = np.array(df["Risk"], dtype=bool)
 
     if uf_model == "power_nonneg":
-        mask = np.all(a_outcomes >= 0, axis=1) & np.all(b_outcomes >= 0, axis=1)
-        a_outcomes, a_probs, b_outcomes, b_probs, observed_data = (
-            x[mask]
-            for x in (a_outcomes, a_probs, b_outcomes, b_probs, observed_data)
+        mask = np.all(a_ocs >= 0, axis=1) & np.all(b_ocs >= 0, axis=1)
+        a_ocs, a_probs, b_ocs, b_probs, observed_data = (
+            x[mask] for x in (a_ocs, a_probs, b_ocs, b_probs, observed_data)
         )
 
     start_s = time.time()
     res = estimate_max_lik_params(
-        a_outcomes=a_outcomes,
+        a_ocs=a_ocs,
         a_probs=a_probs,
-        b_outcomes=b_outcomes,
+        b_ocs=b_ocs,
         b_probs=b_probs,
         observed_data=observed_data,
         lottery_utility=model,

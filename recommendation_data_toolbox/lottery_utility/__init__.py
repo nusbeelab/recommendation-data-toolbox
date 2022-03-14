@@ -25,16 +25,18 @@ def get_lottery_utility_func(
 
     def lottery_utility_func(
         params: tuple,
-        outcomes: npt.NDArray[np.int_],
+        ocs: npt.NDArray[np.int_],
         probs: npt.NDArray[np.float64],
     ):
-        utility_of_outcomes = outcome_utility_func(
-            params[:outcome_utility_param_num], outcomes
+        utility_of_consequences = outcome_utility_func(
+            params[:outcome_utility_param_num], ocs
         )
         prob_weights = prob_weight_func(
             params[outcome_utility_param_num:], probs
         )
-        return np.sum(np.multiply(prob_weights, utility_of_outcomes), axis=-1)
+        return np.sum(
+            np.multiply(prob_weights, utility_of_consequences), axis=-1
+        )
 
     return lottery_utility_func
 

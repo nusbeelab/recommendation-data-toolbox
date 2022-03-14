@@ -3,10 +3,7 @@ from typing import Callable, List, Optional, Tuple, Union
 import numpy.typing as npt
 from recommendation_data_toolbox.constants import MAX_FLOAT64
 
-from recommendation_data_toolbox.lottery_utility.exceptions import (
-    DomainError,
-    InvalidOutcomeUtilityName,
-)
+from recommendation_data_toolbox.lottery_utility.exceptions import DomainError
 
 
 OutcomeUtilityFunc = Union[
@@ -15,18 +12,20 @@ OutcomeUtilityFunc = Union[
 ]  # params, outcome -> utility of outcome
 
 
-def power_uf_on_nonneg_outcomes(
+def power_uf_on_nonneg_ocs(
     params: Tuple[np.float64], x: Union[int, npt.NDArray[np.int_]]
 ):
     """Utility function with one parameter, U(x|r) = x^r."""
     if np.any(x < 0):
         raise DomainError(
-            "All outcomes must be nonnegative when using a power utility function on nonnegative outcomes parameterized by one variable."
+            """All object consequences must be nonnegative when using a power utility 
+            function on nonnegative objective consequences parameterized by one variable.
+            """
         )
     return np.power(x, params[0], dtype=np.float64)
 
 
-def power_uf_on_real_outcomes(
+def power_uf_on_real_ocs(
     params: Tuple[np.float64, np.float64, np.float64],
     x: Union[int, npt.NDArray[np.int_]],
 ):
@@ -54,10 +53,10 @@ class OutcomeUtilityWrapper:
 
 OUTCOME_UTILITY_WRAPPERS = {
     "power_nonneg": OutcomeUtilityWrapper(
-        power_uf_on_nonneg_outcomes, [(0.0, 1.0)], [0.5]
+        power_uf_on_nonneg_ocs, [(0.0, 1.0)], [0.5]
     ),
     "power": OutcomeUtilityWrapper(
-        power_uf_on_real_outcomes,
+        power_uf_on_real_ocs,
         [(0.0, 1.0), (1.0, MAX_FLOAT64), (0.0, 1.0)],
         [0.5, 2.0, 0.5],
     ),

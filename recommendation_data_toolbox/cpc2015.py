@@ -32,22 +32,22 @@ def unpack_lottery_distribution(
     Parameters
     ----------
     high_val : int
-        The payoff of the high outcome, or the expected value of the high
-        outcomes if the option is a multi-outcome problem i.e. it includes
-        more than two possible outcomes.
+        The payoff of the high objective consequence, or the expected value of the high
+        objective consequence if the option is a multi-objective consequence problem i.e.
+        it includes more than two possible objective consequence.
     high_prob : float
-        The probability of getting the high outcome.
+        The probability of getting the high objective consequence.
     low_val : int, optional
-        The payoff of the low outcome. Can be None if high_prob is 1.
+        The payoff of the low objective consequence. Can be None if high_prob is 1.
     lot_num : str, optional
-        The number of the possible high outcomes if the option is a
-        multi-outcome problem.
+        The number of the possible high objective consequence if the option is a
+        multi-objective consequence problem.
     lot_shape : str, optional
-        The shape of the high outcome distribution.
+        The shape of the high objective consequence distribution.
 
     Returns
     -------
-    outcomes : numpy array of int
+    objective_consequence : numpy array of int
     probs : numpy array of float64
 
     Raises

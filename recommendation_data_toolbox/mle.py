@@ -12,26 +12,26 @@ def neg_log_lik_fn(
     lottery_utility_func: Callable[
         [tuple, npt.NDArray[np.int_], npt.NDArray[np.float64]], np.float64
     ],
-    a_outcomes: npt.NDArray[np.int_],
+    a_ocs: npt.NDArray[np.int_],
     a_probs: npt.NDArray[np.float64],
-    b_outcomes: npt.NDArray[np.int_],
+    b_ocs: npt.NDArray[np.int_],
     b_probs: npt.NDArray[np.float64],
     observed_data: npt.NDArray[
         np.int_
     ],  # 0 if option A was chosen, 1 otherwise
 ):
     eu_deltas = np.subtract(
-        lottery_utility_func(params, a_outcomes, a_probs),
-        lottery_utility_func(params, b_outcomes, b_probs),
+        lottery_utility_func(params, a_ocs, a_probs),
+        lottery_utility_func(params, b_ocs, b_probs),
     )
     signs = observed_data * -2 + 1  # 1 if option A was chosen, -1 otherwise
     return -np.log(norm.cdf(np.multiply(eu_deltas, signs))).sum(axis=-1)
 
 
 def estimate_max_lik_params(
-    a_outcomes: npt.NDArray[np.int_],
+    a_ocs: npt.NDArray[np.int_],
     a_probs: npt.NDArray[np.float64],
-    b_outcomes: npt.NDArray[np.int_],
+    b_ocs: npt.NDArray[np.int_],
     b_probs: npt.NDArray[np.float64],
     observed_data: npt.NDArray[np.int_],
     lottery_utility: str,
@@ -51,9 +51,9 @@ def estimate_max_lik_params(
             method="Nelder-Mead",
             args=(
                 func,
-                a_outcomes,
+                a_ocs,
                 a_probs,
-                b_outcomes,
+                b_ocs,
                 b_probs,
                 observed_data,
             ),

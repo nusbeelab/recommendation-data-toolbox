@@ -14,8 +14,14 @@ def get_mock_data_from_df(df: pd.DataFrame):
         & (df["Amb"] == 0)
         & (df["Manipulation"] == "Abstract")
     ]
-    df["SubjID"] = df["SubjID"].astype(str) + "_" + df["Trial"].astype(str)
-    df = df.groupby("SubjID").filter(lambda x: len(x) == 25)
+
+    df["SubjID"] = (
+        df["Location"]
+        + "_"
+        + df["SubjID"].astype(str)
+        + "_"
+        + df["Trial"].astype(str)
+    )
 
     lot_pairs = df[CPC15_LOTTERY_PAIR_HEADERS].drop_duplicates()
     if len(lot_pairs) != 25:
@@ -26,7 +32,7 @@ def get_mock_data_from_df(df: pd.DataFrame):
 
 def get_mock_data():
     df, lot_pair = get_mock_data_from_df(
-        get_fullpath_to_datafile(CPC15_DATASET_FILENAMES[0])
+        pd.read_csv(get_fullpath_to_datafile(CPC15_DATASET_FILENAMES[0]))
     )
     preexperiment_subj_ids, experiment_subj_ids = train_test_split(
         df["SubjID"].unique(), test_size=0.5, random_state=1234

@@ -1,4 +1,5 @@
 import os
+from typing import Iterable
 import numpy as np
 import numpy.typing as npt
 from recommendation_cl_utils import CWD
@@ -37,6 +38,11 @@ def snakecase_to_camelcase(snakecase: str):
         word.capitalize() if i > 0 else word for i, word in enumerate(words)
     ]
     return "".join(words)
+
+
+def sort_lists_with_ordering(ordering: list, lists: Iterable[Iterable]):
+    ordering_dict = {x: i for i, x in enumerate(ordering)}
+    return zip(*sorted(zip(*lists), key=lambda x: ordering_dict[x[0]]))
 
 
 def get_accuracy(actual: npt.NDArray, preds: npt.NDArray):

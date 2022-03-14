@@ -2,7 +2,9 @@ from typing import Dict, Literal, Type
 import numpy as np
 import pandas as pd
 import numpy.typing as npt
-from recommendation_cl_utils.constants import CPC15_LOTTERY_PAIR_HEADERS
+from recommendation_cl_utils.rec_benchmarking.common import (
+    get_rating_matrix_df,
+)
 from recommendation_cl_utils.utils import get_fullpath_to_datafile
 
 from recommendation_data_toolbox.rec.cf.neighborhood_based import (
@@ -12,41 +14,6 @@ from recommendation_data_toolbox.rec.cf.neighborhood_based import (
 )
 
 
-def convert_subj_data_to_rating_vector(
-    subj_experiment_data: pd.DataFrame,
-    lot_pair_to_id_dict: Dict[tuple, int],
-):
-    if len(subj_experiment_data) != 25:
-        raise ValueError(
-            f"Each subject is expected to have 25 responses, but subject {subj_experiment_data['SubjID']} has {len(subj_experiment_data)} responses."
-        )
-    lottery_pair_ids = [
-        lot_pair_to_id_dict[lot_pair]
-        for lot_pair in subj_experiment_data["lottery_pair"]
-    ]
-    decisions = subj_experiment_data["Risk"].to_list()
-    return [
-        decision for _, decision in sorted(zip(lottery_pair_ids, decisions))
-    ]
-
-
-def get_rating_matrix(lot_pair_to_id_dict: Dict[tuple, int]):
-    preexperiment_data = pd.read_csv(
-        get_fullpath_to_datafile("MockPreexperimentData.csv")
-    )
-    preexperiment_data["lottery_pair"] = preexperiment_data[
-        CPC15_LOTTERY_PAIR_HEADERS
-    ].apply(tuple, axis=1)
-    return np.array(
-        preexperiment_data.groupby("SubjID")
-        .apply(
-            func=convert_subj_data_to_rating_vector,
-            lot_pair_to_id_dict=lot_pair_to_id_dict,
-        )
-        .to_list()
-    )
-
-
 NBCF_MODEL_CLASSES: Dict[str, Type[NbcfRecommender]] = {
     "ubcf": UbcfRecommender,
     "ibcf": IbcfRecommender,
@@ -54,71 +21,78 @@ NBCF_MODEL_CLASSES: Dict[str, Type[NbcfRecommender]] = {
 
 
 def get_nbcf_preds_per_subj(
-    rating_matrix: npt.NDArray,
+    rating_matrix,
     subj_lot_pair_ids: npt.NDArray,
     subj_decisions: npt.NDArray,
     subj_test_lot_pair_ids: npt.NDArray,
     model: Literal["ubcf", "ibcf"],
 ):
+
     recommender = NBCF_MODEL_CLASSES[model](
         rating_matrix=rating_matrix,
         subj_lot_pair_ids=subj_lot_pair_ids,
         subj_decisions=subj_decisions,
     )
-    return [
-        recommender.rec(lot_pair_id) for lot_pair_id in subj_test_lot_pair_ids
-    ]
+    return np.array(
+        [recommender.rec(lot_pair_id) for lot_pair_id in subj_test_lot_pair_ids]
+    )
 
 
-def get_nbcf_preds(
+def get_nbcf_preds_all_subjs(
+    lot_pair_to_id_dict,
     train_lot_pair_ids: npt.NDArray,
     train_decisions: npt.NDArray,
     test_lot_pair_ids: npt.NDArray,
-    lot_pair_to_id_dict,
     model: Literal["ubcf", "ibcf"],
 ):
-    rating_matrix = get_rating_matrix(lot_pair_to_id_dict)
+    assert train_lot_pair_ids.shape == (20,)
+    assert train_decisions.shape[1] == 20
+    assert test_lot_pair_ids.shape == (5,)
+    preexperiment_data = pd.read_csv(
+        get_fullpath_to_datafile("MockPreexperimentData.csv")
+    )
+    rating_matrix = get_rating_matrix_df(
+        preexperiment_data, lot_pair_to_id_dict
+    ).values
     return np.array(
         [
             get_nbcf_preds_per_subj(
                 rating_matrix,
-                subj_lot_pair_ids,
+                train_lot_pair_ids,
                 subj_decisions,
-                subj_test_lot_pair_ids,
+                test_lot_pair_ids,
                 model,
             )
-            for subj_lot_pair_ids, subj_decisions, subj_test_lot_pair_ids in zip(
-                train_lot_pair_ids, train_decisions, test_lot_pair_ids
-            )
+            for subj_decisions in train_decisions
         ]
     )
 
 
-def get_ubcf_preds(
+def get_ubcf_preds_all_subjs(
+    lot_pair_to_id_dict: Dict[tuple, int],
     train_lot_pair_ids: npt.NDArray,
     train_decisions: npt.NDArray,
     test_lot_pair_ids: npt.NDArray,
-    lot_pair_to_id_dict,
 ):
-    return get_nbcf_preds(
+    return get_nbcf_preds_all_subjs(
+        lot_pair_to_id_dict,
         train_lot_pair_ids,
         train_decisions,
         test_lot_pair_ids,
-        lot_pair_to_id_dict,
         "ubcf",
     )
 
 
-def get_ibcf_preds(
+def get_ibcf_preds_all_subjs(
+    lot_pair_to_id_dict,
     train_lot_pair_ids: npt.NDArray,
     train_decisions: npt.NDArray,
     test_lot_pair_ids: npt.NDArray,
-    lot_pair_to_id_dict,
 ):
-    return get_nbcf_preds(
+    return get_nbcf_preds_all_subjs(
+        lot_pair_to_id_dict,
         train_lot_pair_ids,
         train_decisions,
         test_lot_pair_ids,
-        lot_pair_to_id_dict,
         "ibcf",
     )

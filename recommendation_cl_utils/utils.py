@@ -1,7 +1,14 @@
+import os
+from typing import Iterable
 import numpy as np
 import numpy.typing as npt
+from recommendation_cl_utils import CWD
 
 from recommendation_data_toolbox.utils import stack_1darrays
+
+
+def get_fullpath_to_datafile(filename):
+    return os.path.join(CWD, "data", filename)
 
 
 def decode_str_encoded_nparray(
@@ -31,3 +38,14 @@ def snakecase_to_camelcase(snakecase: str):
         word.capitalize() if i > 0 else word for i, word in enumerate(words)
     ]
     return "".join(words)
+
+
+def sort_lists_with_ordering(ordering: list, lists: Iterable[Iterable]):
+    ordering_dict = {x: i for i, x in enumerate(ordering)}
+    return zip(*sorted(zip(*lists), key=lambda x: ordering_dict[x[0]]))
+
+
+def get_accuracy(actual: npt.NDArray, preds: npt.NDArray):
+    if actual.shape != preds.shape:
+        raise ValueError(f"{actual.shape} != {preds.shape}")
+    return np.sum(actual == preds, axis=-1) / actual.shape[-1]

@@ -4,7 +4,7 @@ import numpy as np
 
 from recommendation_data_toolbox.rec.cf.neighborhood_based import (
     IbcfRecommender,
-    UcbfRecommender,
+    UbcfRecommender,
 )
 
 
@@ -24,7 +24,7 @@ class TestUserBased(unittest.TestCase):
         )
 
     def test_ubcfRecommender(self):
-        recommender = UcbfRecommender(
+        recommender = UbcfRecommender(
             rating_matrix=self.rating_matrix,
             subj_lot_pair_ids=np.array([2, 4, 0, 1]),
             subj_decisions=np.array([0, 0, 1, 1]),

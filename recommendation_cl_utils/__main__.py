@@ -1,20 +1,20 @@
-import os
 from argparse import ArgumentParser
 from recommendation_cl_utils.mock_experiment_data import get_mock_data
+from recommendation_cl_utils.rec_benchmarking.benchmark import benchmark_model
 
-from recommendation_cl_utils.utils import snakecase_to_camelcase
-from . import CWD
+from recommendation_cl_utils.utils import (
+    get_fullpath_to_datafile,
+    snakecase_to_camelcase,
+)
 from .param_estimation import estimate_params
 from .raw_data_transform import get_intermediate_data
 
 
 def generate_intermediate_data(experiment_number: int):
     results = get_intermediate_data(experiment_number)
-    output_filepath = (
-        f"./data/IntermediateDataExperiment{experiment_number}.csv"
-    )
+    output_filename = "IntermediateDataExperiment{experiment_number}.csv"
     results.to_csv(
-        os.path.join(CWD, output_filepath),
+        get_fullpath_to_datafile(output_filename),
         index=False,
     )
 
@@ -43,16 +43,21 @@ def generate_estimated_parameters(
     per_subject_label = (
         "perSubject" if is_per_subject else "representativeSubject"
     )
-    output_filepath = f"./data/mle_{experiment_label}_{model_label}_{domain_label}_{constraints_label}_{per_subject_label}.csv"
-    results.to_csv(os.path.join(CWD, output_filepath))
+    output_filename = f"mle_{experiment_label}_{model_label}_{domain_label}_{constraints_label}_{per_subject_label}.csv"
+    results.to_csv(get_fullpath_to_datafile(output_filename))
 
 
 def generate_mock_experiment_data():
-    preexperiment_data, experiment_data = get_mock_data()
+    preexperiment_data, experiment_data, lot_pairs = get_mock_data()
     preexperiment_data.to_csv(
-        os.path.join(CWD, "data", "MockPreexperimentData.csv")
+        get_fullpath_to_datafile("MockPreexperimentData.csv"), index=False
     )
-    experiment_data.to_csv(os.path.join(CWD, "data", "MockExperimentData.csv"))
+    experiment_data.to_csv(
+        get_fullpath_to_datafile("MockExperimentData.csv"), index=False
+    )
+    lot_pairs.to_csv(
+        get_fullpath_to_datafile("MockBinaryChoices.csv"), index=False
+    )
 
 
 def main():
@@ -84,6 +89,7 @@ def main():
     parser.add_argument(
         "--with-constraints", dest="isWithConstraints", action="store_true"
     )
+    parser.add_argument("--rec-model", type=str, dest="recModel")
     args = parser.parse_args()
     if args.action == "generate_intermediate_data":
         generate_intermediate_data(args.experiment_number)
@@ -97,6 +103,8 @@ def main():
         )
     elif args.action == "generate_mock_experiment_data":
         generate_mock_experiment_data()
+    elif args.action == "benchmark":
+        benchmark_model(args.recModel)
 
 
 if __name__ == "__main__":

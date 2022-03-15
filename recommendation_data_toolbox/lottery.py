@@ -51,23 +51,10 @@ class LotteryPair:
 
 class LotteryPairManager:
     def __init__(
-        self, lot_pairs: List[LotteryPair], ids: Optional[List[int]] = None
+        self, lot_pairs: List[LotteryPair], labels: Optional[List[str]] = None
     ):
-        if ids is None:
-            ids = list(range(len(lot_pairs)))
-        elif len(lot_pairs) != len(ids):
-            raise ValueError("lottery_pairs and ids must have the same length.")
-        self.lot_pair_dict = {
-            id: lot_pair for lot_pair, id in zip(lot_pairs, ids)
-        }
-
-    @property
-    def ids(self):
-        return list(self.lot_pair_dict.keys())
-
-    @property
-    def lot_pairs(self):
-        return list(self.lot_pair_dict.values())
+        self.lot_pairs = list(lot_pairs)
+        self.labels = None if labels == None else list(labels)
 
     def convert_lottery_pairs_to_ids(self, lottery_pairs: List[LotteryPair]):
         try:
@@ -76,7 +63,7 @@ class LotteryPairManager:
                 # a hashmap so as to avoid calling hash on float attributes.
                 next(
                     i
-                    for i, lot_pair in self.lot_pair_dict.items()
+                    for i, lot_pair in enumerate(self.lot_pairs)
                     if lot_pair == lottery_pair
                 )
                 for lottery_pair in lottery_pairs
@@ -87,4 +74,4 @@ class LotteryPairManager:
             )
 
     def convert_ids_to_lottery_pairs(self, ids: List[int]):
-        return [self.lot_pair_dict[id] for id in ids]
+        return [self.lot_pairs[id] for id in ids]

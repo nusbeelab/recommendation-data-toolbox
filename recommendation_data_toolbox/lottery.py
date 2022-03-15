@@ -53,7 +53,7 @@ class LotteryPairManager:
     def __init__(
         self, lot_pairs: List[LotteryPair], ids: Optional[List[int]] = None
     ):
-        if ids == None:
+        if ids is None:
             ids = list(range(len(lot_pairs)))
         elif len(lot_pairs) != len(ids):
             raise ValueError("lottery_pairs and ids must have the same length.")

@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List
+from typing import List, Optional
 import numpy.typing as npt
 
 
@@ -50,8 +50,16 @@ class LotteryPair:
 
 
 class LotteryPairManager:
-    def __init__(self, lottery_pairs: List[LotteryPair]):
-        self.lottery_pairs = list(lottery_pairs)
+    def __init__(
+        self, lottery_pairs: List[LotteryPair], ids: Optional[List[int]] = None
+    ):
+        if ids == None:
+            ids = list(range(len(lottery_pairs)))
+        elif len(lottery_pairs) != len(ids):
+            raise ValueError("lottery_pairs and ids must have the same length.")
+        self.lot_pair_dict = {
+            id: lot_pair for lot_pair, id in zip(lottery_pairs, ids)
+        }
 
     def convert_lottery_pairs_to_ids(self, lottery_pairs: List[LotteryPair]):
         try:
@@ -60,7 +68,7 @@ class LotteryPairManager:
                 # a hashmap so as to avoid calling hash on float attributes.
                 next(
                     i
-                    for i, lot_pair in enumerate(self.lottery_pairs)
+                    for i, lot_pair in self.lot_pair_dict.items()
                     if lot_pair == lottery_pair
                 )
                 for lottery_pair in lottery_pairs
@@ -71,4 +79,4 @@ class LotteryPairManager:
             )
 
     def convert_ids_to_lottery_pairs(self, ids: List[int]):
-        return [self.lottery_pairs[id] for id in ids]
+        return [self.lot_pair_dict[id] for id in ids]

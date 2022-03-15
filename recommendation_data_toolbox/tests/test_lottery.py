@@ -24,6 +24,11 @@ class TestLottery(unittest.TestCase):
             np.array_equal(lottery.probs, np.array([0.5, 0.1, 0.4]))
         )
 
+    def test_lotteryPairManager_properties(self):
+        lot_pair_manager = LotteryPairManager(LOT_PAIRS, [5, 3, 4, 1, 2])
+        self.assertEqual(lot_pair_manager.lot_pairs, LOT_PAIRS)
+        self.assertEqual(lot_pair_manager.ids, [5, 3, 4, 1, 2])
+
     def test_lotteryPairManager_noIds(self):
         lot_pair_manager = LotteryPairManager(LOT_PAIRS)
         self.assertEqual(

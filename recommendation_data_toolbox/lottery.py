@@ -17,15 +17,12 @@ class Lottery:
         objective_consequences: npt.NDArray[np.int_],
         probs: npt.NDArray[np.float64],
     ):
-        """A container for objective consequences and nonzero probabilities of a lottery.
-        The objective consequences are sorted in descending order.
-        """
+        """A container for objective consequences and nonzero probabilities of a lottery."""
         objective_consequences, probs = simplify_lottery(
             objective_consequences, probs
         )
-        order = objective_consequences.argsort()[::-1]
-        self.objective_consequences = objective_consequences[order]
-        self.probs = probs[order]
+        self.objective_consequences = objective_consequences
+        self.probs = probs
 
     def __eq__(self, o):
         return (

@@ -15,15 +15,6 @@ from recommendation_data_toolbox.tests.mock_data import (
 
 
 class TestLottery(unittest.TestCase):
-    def test_lottery(self):
-        lottery = Lottery(np.array([3, 5, 2]), np.array([0.1, 0.5, 0.4]))
-        self.assertTrue(
-            np.array_equal(lottery.objective_consequences, np.array([5, 3, 2]))
-        )
-        self.assertTrue(
-            np.array_equal(lottery.probs, np.array([0.5, 0.1, 0.4]))
-        )
-
     def test_lotteryPairManager(self):
         lot_pair_manager = LotteryPairManager(LOT_PAIRS)
         self.assertEqual(

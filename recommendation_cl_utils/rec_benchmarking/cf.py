@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from typing import Dict, Literal, Type
+from typing import Dict, Literal, Optional, Type
 import numpy.typing as npt
 
 from recommendation_data_toolbox.rec.cf import CfRecommender
@@ -28,11 +28,11 @@ CF_RECOMMENDER_CLASSES: Dict[str, Type[CfRecommender]] = {
 }
 
 
-def get_nbcf_preds_per_subj(
+def get_cf_preds_per_subj(
     rating_matrix,
-    subj_lot_pair_ids: npt.NDArray,
+    subj_problem_ids: npt.NDArray,
     subj_decisions: npt.NDArray,
-    subj_test_lot_pair_ids: npt.NDArray,
+    subj_test_problem_ids: npt.NDArray,
     model: Literal[
         "ubcf", "ibcf", "decision_tree", "naive_bayes", "latent_factor"
     ],
@@ -40,37 +40,36 @@ def get_nbcf_preds_per_subj(
 
     recommender = CF_RECOMMENDER_CLASSES[model](
         rating_matrix=rating_matrix,
-        subj_lot_pair_ids=subj_lot_pair_ids,
+        subj_problem_ids=subj_problem_ids,
         subj_decisions=subj_decisions,
     )
     return np.array(
-        [recommender.rec(lot_pair_id) for lot_pair_id in subj_test_lot_pair_ids]
+        [recommender.rec(problem_id) for problem_id in subj_test_problem_ids]
     )
 
 
-def get_nbcf_preds_all_subjs(
-    lot_pair_to_id_dict,
-    train_lot_pair_ids: npt.NDArray,
+def get_cf_preds_all_subjs(
+    train_problem_ids: npt.NDArray,
     train_decisions: npt.NDArray,
-    test_lot_pair_ids: npt.NDArray,
+    test_problem_ids: npt.NDArray,
     model: str,
+    preexperiment_filename: Optional[str],
 ):
-    assert train_lot_pair_ids.shape == (20,)
-    assert train_decisions.shape[1] == 20
-    assert test_lot_pair_ids.shape == (5,)
+    if preexperiment_filename == None:
+        preexperiment_filename = "MockPreexperimentData.csv"
     preexperiment_data = pd.read_csv(
-        get_fullpath_to_datafile("MockPreexperimentData.csv")
+        get_fullpath_to_datafile(preexperiment_filename)
     )
-    rating_matrix = get_rating_matrix_df(
-        preexperiment_data, lot_pair_to_id_dict
-    ).values
+
+    rating_matrix = get_rating_matrix_df(preexperiment_data).values
+
     return np.array(
         [
-            get_nbcf_preds_per_subj(
+            get_cf_preds_per_subj(
                 rating_matrix,
-                train_lot_pair_ids,
+                train_problem_ids,
                 subj_decisions,
-                test_lot_pair_ids,
+                test_problem_ids,
                 model,
             )
             for subj_decisions in train_decisions

@@ -61,3 +61,9 @@ python3 -m recommendation_cl_utils generate_intermediate_data --experiment-numbe
 python3 -m recommendation_cl_utils estimate_params --experiment-number <experiment-number> --model <model> [--per-subject] [--include-neg-domain]
 
 ```
+
+```
+
+python3 -m recommendation_cl_utils benchmark --rec-model <rec-model> --experiment-filename <experiment-filename> --preexperiment-filename <preexperiment-filename> --problems-filename <problems-filename>
+
+```

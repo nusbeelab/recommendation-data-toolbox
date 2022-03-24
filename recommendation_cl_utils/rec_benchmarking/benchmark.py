@@ -1,24 +1,16 @@
-from typing import Dict
 import numpy as np
 import pandas as pd
-import numpy.typing as npt
 from sklearn.model_selection import KFold
 
-from recommendation_cl_utils.rec_benchmarking.cf.neighborhood_based import (
-    get_ubcf_preds_all_subjs,
-    get_ibcf_preds_all_subjs,
-)
+from typing import Dict
+import numpy.typing as npt
+
+from recommendation_cl_utils.utils import get_accuracy, get_fullpath_to_datafile
 from recommendation_cl_utils.rec_benchmarking.common import (
     get_lot_pair_to_id_dict,
     get_rating_matrix_df,
 )
-from recommendation_cl_utils.utils import get_accuracy, get_fullpath_to_datafile
-
-
-PREDS_GETTERS = {
-    "ubcf": get_ubcf_preds_all_subjs,
-    "ibcf": get_ibcf_preds_all_subjs,
-}
+from recommendation_cl_utils.rec_benchmarking.cf import get_nbcf_preds_all_subjs
 
 
 def agg_data_per_subj(df: pd.DataFrame):
@@ -45,11 +37,12 @@ def benchmark_model_per_fold(
     train_decisions = experiment_rating_matrix[:, train_lot_pair_ids]
     test_decisions = experiment_rating_matrix[:, test_lot_pair_ids]
 
-    preds = PREDS_GETTERS[model](
+    preds = get_nbcf_preds_all_subjs(
         lot_pair_to_id_dict,
         train_lot_pair_ids,
         train_decisions,
         test_lot_pair_ids,
+        model,
     )
     data = {
         "FoldNum": fold_num,

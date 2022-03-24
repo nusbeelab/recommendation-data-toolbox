@@ -31,6 +31,8 @@ def get_preds_all_subjs(
             model,
             **kwargs,
         )
+    else:
+        raise ValueError
 
 
 def benchmark_model_per_fold(

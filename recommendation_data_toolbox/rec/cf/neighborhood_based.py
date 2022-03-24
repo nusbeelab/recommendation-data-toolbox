@@ -31,9 +31,9 @@ class NbcfRecommender(CfRecommender):
 class UbcfRecommender(NbcfRecommender):
     """A user-based collaborative filtering (UBCF) recommender."""
 
-    def rec(self, problem_id: int):
+    def rec(self, problem_ids: npt.NDArray[np.int_]):
         X = self.rating_matrix[:, self.subj_problem_ids]
-        y = self.rating_matrix[:, problem_id]
+        y = self.rating_matrix[:, problem_ids]
 
         self.clf.fit(X, y)
 
@@ -43,11 +43,13 @@ class UbcfRecommender(NbcfRecommender):
 class IbcfRecommender(NbcfRecommender):
     """An item-based collaborative filtering (IBCF) recommender."""
 
-    def rec(self, problem_id: int):
+    def rec(self, problem_ids: npt.NDArray[np.int_]):
         X = self.rating_matrix[:, self.subj_problem_ids].T
         y = self.subj_decisions
 
         self.clf.fit(X, y)
 
-        input_X = self.rating_matrix[:, problem_id]
-        return self.clf.predict([input_X])[0]
+        input_X = [
+            self.rating_matrix[:, problem_id] for problem_id in problem_ids
+        ]
+        return self.clf.predict(input_X)

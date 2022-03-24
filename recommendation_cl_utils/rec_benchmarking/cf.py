@@ -43,9 +43,7 @@ def get_cf_preds_per_subj(
         subj_problem_ids=subj_problem_ids,
         subj_decisions=subj_decisions,
     )
-    return np.array(
-        [recommender.rec(problem_id) for problem_id in subj_test_problem_ids]
-    )
+    return recommender.rec(subj_test_problem_ids)
 
 
 def get_cf_preds_all_subjs(

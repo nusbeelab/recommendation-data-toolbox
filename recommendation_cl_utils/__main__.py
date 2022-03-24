@@ -1,13 +1,13 @@
 from argparse import ArgumentParser
-from recommendation_cl_utils.mock_experiment_data import get_mock_data
-from recommendation_cl_utils.rec_benchmarking.benchmark import benchmark_model
 
 from recommendation_cl_utils.utils import (
     get_fullpath_to_datafile,
     snakecase_to_camelcase,
 )
-from .param_estimation import estimate_params
-from .raw_data_transform import get_intermediate_data
+from recommendation_cl_utils.raw_data_transform import get_intermediate_data
+from recommendation_cl_utils.param_estimation import estimate_params
+from recommendation_cl_utils.mock_experiment_data import get_mock_data
+from recommendation_cl_utils.rec_benchmarking.benchmark import benchmark_model
 
 
 def generate_intermediate_data(experiment_number: int):

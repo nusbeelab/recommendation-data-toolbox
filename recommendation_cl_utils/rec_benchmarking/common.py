@@ -1,5 +1,5 @@
-from typing import Dict
 import pandas as pd
+from typing import Dict
 
 from recommendation_cl_utils.constants import CPC15_LOTTERY_PAIR_HEADERS
 from recommendation_cl_utils.utils import get_fullpath_to_datafile

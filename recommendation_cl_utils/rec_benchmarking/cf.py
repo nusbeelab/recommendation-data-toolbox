@@ -1,22 +1,30 @@
-from typing import Dict, Literal, Type
 import numpy as np
 import pandas as pd
-import numpy.typing as npt
-from recommendation_cl_utils.rec_benchmarking.common import (
-    get_rating_matrix_df,
-)
-from recommendation_cl_utils.utils import get_fullpath_to_datafile
 
+from typing import Dict, Literal, Type
+import numpy.typing as npt
+
+from recommendation_data_toolbox.rec.cf import CfRecommender
+from recommendation_data_toolbox.rec.cf.model_based import (
+    DecisionTreeRecommender,
+    LatentFactorRecommender,
+    NaiveBayesRecommender,
+)
 from recommendation_data_toolbox.rec.cf.neighborhood_based import (
     IbcfRecommender,
-    NbcfRecommender,
     UbcfRecommender,
 )
 
+from recommendation_cl_utils.utils import get_fullpath_to_datafile
+from recommendation_cl_utils.rec_benchmarking.common import get_rating_matrix_df
 
-NBCF_MODEL_CLASSES: Dict[str, Type[NbcfRecommender]] = {
+
+CF_RECOMMENDER_CLASSES: Dict[str, Type[CfRecommender]] = {
     "ubcf": UbcfRecommender,
     "ibcf": IbcfRecommender,
+    "decision_tree": DecisionTreeRecommender,
+    "naive_bayes": NaiveBayesRecommender,
+    "latent_factor": LatentFactorRecommender,
 }
 
 
@@ -25,10 +33,12 @@ def get_nbcf_preds_per_subj(
     subj_lot_pair_ids: npt.NDArray,
     subj_decisions: npt.NDArray,
     subj_test_lot_pair_ids: npt.NDArray,
-    model: Literal["ubcf", "ibcf"],
+    model: Literal[
+        "ubcf", "ibcf", "decision_tree", "naive_bayes", "latent_factor"
+    ],
 ):
 
-    recommender = NBCF_MODEL_CLASSES[model](
+    recommender = CF_RECOMMENDER_CLASSES[model](
         rating_matrix=rating_matrix,
         subj_lot_pair_ids=subj_lot_pair_ids,
         subj_decisions=subj_decisions,
@@ -43,7 +53,7 @@ def get_nbcf_preds_all_subjs(
     train_lot_pair_ids: npt.NDArray,
     train_decisions: npt.NDArray,
     test_lot_pair_ids: npt.NDArray,
-    model: Literal["ubcf", "ibcf"],
+    model: str,
 ):
     assert train_lot_pair_ids.shape == (20,)
     assert train_decisions.shape[1] == 20
@@ -65,34 +75,4 @@ def get_nbcf_preds_all_subjs(
             )
             for subj_decisions in train_decisions
         ]
-    )
-
-
-def get_ubcf_preds_all_subjs(
-    lot_pair_to_id_dict: Dict[tuple, int],
-    train_lot_pair_ids: npt.NDArray,
-    train_decisions: npt.NDArray,
-    test_lot_pair_ids: npt.NDArray,
-):
-    return get_nbcf_preds_all_subjs(
-        lot_pair_to_id_dict,
-        train_lot_pair_ids,
-        train_decisions,
-        test_lot_pair_ids,
-        "ubcf",
-    )
-
-
-def get_ibcf_preds_all_subjs(
-    lot_pair_to_id_dict,
-    train_lot_pair_ids: npt.NDArray,
-    train_decisions: npt.NDArray,
-    test_lot_pair_ids: npt.NDArray,
-):
-    return get_nbcf_preds_all_subjs(
-        lot_pair_to_id_dict,
-        train_lot_pair_ids,
-        train_decisions,
-        test_lot_pair_ids,
-        "ibcf",
     )

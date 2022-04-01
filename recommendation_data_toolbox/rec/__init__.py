@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
-from typing import Optional
 import numpy as np
+from typing import Optional
 import numpy.typing as npt
 
 

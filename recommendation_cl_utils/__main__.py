@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from recommendation_cl_utils.mock_data import get_mock_data, get_mock_split_data
 
 from recommendation_cl_utils.utils import (
     get_fullpath_to_datafile,
@@ -6,7 +7,6 @@ from recommendation_cl_utils.utils import (
 )
 from recommendation_cl_utils.raw_data_transform import get_intermediate_data
 from recommendation_cl_utils.param_estimation import estimate_params
-from recommendation_cl_utils.mock_experiment_data import get_mock_data
 from recommendation_cl_utils.rec_benchmarking.benchmark import benchmark_model
 
 
@@ -47,13 +47,27 @@ def generate_estimated_parameters(
     results.to_csv(get_fullpath_to_datafile(output_filename))
 
 
-def generate_mock_experiment_data():
-    preexperiment_data, experiment_data = get_mock_data()
-    preexperiment_data.to_csv(
-        get_fullpath_to_datafile("MockPreexperimentData.csv"), index=False
-    )
-    experiment_data.to_csv(
-        get_fullpath_to_datafile("MockExperimentData.csv"), index=False
+def generate_mock_experiment_data(dataset: str, is_split: bool):
+    if is_split:
+        preexperiment_data, experiment_data = get_mock_split_data(dataset)
+        preexperiment_data.to_csv(
+            get_fullpath_to_datafile(f"MockPreexperimentData_{dataset}.csv"),
+            index=False,
+        )
+        experiment_data.to_csv(
+            get_fullpath_to_datafile(f"MockExperimentData_{dataset}.csv"),
+            index=False,
+        )
+    else:
+        get_mock_data(dataset).to_csv(
+            get_fullpath_to_datafile(f"Data_{dataset}.csv"), index=False
+        )
+
+
+def generate_benchmark_results(model: str, dataset: str):
+    benchmark_model(model, dataset).to_csv(
+        get_fullpath_to_datafile(f"benchmark_{model}_{dataset}.csv"),
+        index=False,
     )
 
 
@@ -70,7 +84,6 @@ def main():
     parser.add_argument(
         "--model",
         dest="model",
-        type=str,
         choices=[
             "expected_utility",
             "prospect_theory",
@@ -87,12 +100,13 @@ def main():
         "--with-constraints", dest="isWithConstraints", action="store_true"
     )
 
-    parser.add_argument("--rec-model", type=str, dest="recModel")
+    parser.add_argument("--dataset", dest="dataset")
+    parser.add_argument("--split", dest="isSplit", action="store_true")
+
+    parser.add_argument("--rec-model", dest="recModel")
+    parser.add_argument("--experiment-filename", dest="experimentFilename")
     parser.add_argument(
-        "--experiment-filename", type=str, dest="experimentFilename"
-    )
-    parser.add_argument(
-        "--preexperiment-filename", type=str, dest="preexperimentFilename"
+        "--preexperiment-filename", dest="preexperimentFilename"
     )
 
     args = parser.parse_args()
@@ -106,12 +120,10 @@ def main():
             args.isWithConstraints,
             args.isPerSubject,
         )
-    elif args.action == "generate_mock_experiment_data":
-        generate_mock_experiment_data()
+    elif args.action == "generate_mock_data":
+        generate_mock_experiment_data(args.dataset, args.isSplit)
     elif args.action == "benchmark":
-        benchmark_model(
-            args.recModel, args.experimentFilename, args.preexperimentFilename
-        )
+        generate_benchmark_results(args.recModel, args.dataset)
 
 
 if __name__ == "__main__":

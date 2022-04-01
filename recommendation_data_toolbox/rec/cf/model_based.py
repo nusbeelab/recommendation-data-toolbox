@@ -10,16 +10,17 @@ import numpy.typing as npt
 from recommendation_data_toolbox.rec.cf import CfRecommender
 
 
-class DecisionTreeRecommender(CfRecommender):
+class ClassificationModelBasedRecommender(CfRecommender):
     def __init__(
         self,
         rating_matrix: npt.NDArray[np.int_],
         subj_problem_ids: npt.NDArray[np.int_],
         subj_decisions: npt.NDArray[np.int_],
+        clf,
     ):
         super().__init__(rating_matrix, subj_problem_ids, subj_decisions)
         self.X = self.rating_matrix[:, self.subj_problem_ids]
-        self.clf = DecisionTreeClassifier()
+        self.clf = clf
 
     def _rec(self, problem_id: int):
         y = self.rating_matrix[:, problem_id]
@@ -30,21 +31,31 @@ class DecisionTreeRecommender(CfRecommender):
         return np.array([self._rec(problem_id) for problem_id in problem_ids])
 
 
-class NaiveBayesRecommender(CfRecommender):
+class CfDecisionTreeRecommender(ClassificationModelBasedRecommender):
     def __init__(
         self,
         rating_matrix: npt.NDArray[np.int_],
         subj_problem_ids: npt.NDArray[np.int_],
         subj_decisions: npt.NDArray[np.int_],
     ):
-        super().__init__(rating_matrix, subj_problem_ids, subj_decisions)
-        self.X = self.rating_matrix[:, self.subj_problem_ids]
-        self.clf = GaussianNB()
+        super().__init__(
+            rating_matrix,
+            subj_problem_ids,
+            subj_decisions,
+            DecisionTreeClassifier(),
+        )
 
-    def _rec(self, problem_id: int):
-        y = self.rating_matrix[:, problem_id]
-        self.clf.fit(self.X, y)
-        return self.clf.predict([self.subj_decisions])[0]
+
+class CfNaiveBayesRecommender(ClassificationModelBasedRecommender):
+    def __init__(
+        self,
+        rating_matrix: npt.NDArray[np.int_],
+        subj_problem_ids: npt.NDArray[np.int_],
+        subj_decisions: npt.NDArray[np.int_],
+    ):
+        super().__init__(
+            rating_matrix, subj_problem_ids, subj_decisions, GaussianNB()
+        )
 
     def rec(self, problem_ids: npt.NDArray[np.int_]):
         return np.array([self._rec(problem_id) for problem_id in problem_ids])
@@ -127,7 +138,9 @@ def mf_als(
         for i in range(m):
             U[i, :] = least_squares_regression(V, R[i, :])
 
-        if is_converged(U, U_old, delta) and is_converged(V, V_old, delta):
+        # if is_converged(U, U_old, delta) and is_converged(V, V_old, delta):
+        #     break
+        if is_converged(R, np.dot(U, V.T), delta):
             break
 
         step_count += 1
@@ -161,9 +174,9 @@ class LatentFactorRecommender(CfRecommender):
         self.U, self.V = (mf_sgd if optimization_method == "sgd" else mf_als)(R)
 
     def rec(self, problem_ids: npt.NDArray[np.int_]):
-        return int(
+        return (
             get_mf_probs(
                 U=self.U, V=self.V, subj_id=-1, problem_ids=problem_ids
             )
             >= 0.5
-        )
+        ).astype(int)

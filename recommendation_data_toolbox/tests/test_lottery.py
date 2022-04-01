@@ -7,18 +7,23 @@ from recommendation_data_toolbox.lottery import (
     Problem,
     ProblemManager,
 )
-from recommendation_data_toolbox.tests.mock_data import (
-    PROB_2,
-    PROB_3,
-    PROBLEMS,
-)
+from recommendation_data_toolbox.tests.mock_data import PROB_2, PROB_3, PROBLEMS
 
 
 class TestLottery(unittest.TestCase):
+    def test_lotteryCumProbs(self):
+        lot = Lottery(np.array([5, 3, 2]), np.array([0.3, 0.2, 0.5]))
+        self.assertEqual(lot.cum_prob(0), 0)
+        self.assertEqual(lot.cum_prob(2), 0.5)
+        self.assertEqual(lot.cum_prob(3), 0.7)
+        self.assertEqual(lot.cum_prob(4), 0.7)
+        self.assertEqual(lot.cum_prob(5), 1)
+        self.assertEqual(lot.cum_prob(6), 1)
+
     def test_lotteryPairManager(self):
         problem_manager = ProblemManager(PROBLEMS)
         self.assertEqual(
-            problem_manager.convert_ids_to_lottery_pairs([2, 3]),
+            problem_manager.convert_ids_to_problems([2, 3]),
             [PROB_2, PROB_3],
         )
         problem_1 = Problem(
@@ -30,9 +35,7 @@ class TestLottery(unittest.TestCase):
             Lottery(np.array([11, 6, 2]), np.array([0.1, 0.5, 0.4])),
         )
         self.assertEqual(
-            problem_manager.convert_lottery_pairs_to_ids(
-                [problem_1, problem_2]
-            ),
+            problem_manager.convert_problems_to_ids([problem_1, problem_2]),
             [1, 2],
         )
 

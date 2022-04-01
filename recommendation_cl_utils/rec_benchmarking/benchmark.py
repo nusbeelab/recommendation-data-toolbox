@@ -2,128 +2,128 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
 
-from typing import Dict, Optional
-import numpy.typing as npt
-
-from recommendation_cl_utils.utils import get_accuracy, get_fullpath_to_datafile
+from recommendation_cl_utils.utils import get_fullpath_to_datafile
 from recommendation_cl_utils.rec_benchmarking.common import get_rating_matrix_df
-from recommendation_cl_utils.rec_benchmarking.cf import get_cf_preds_all_subjs
+from recommendation_cl_utils.rec_benchmarking.cf import (
+    benchmark_cf_model_per_fold,
+)
+from recommendation_cl_utils.rec_benchmarking.content_based import (
+    benchmark_content_based_model_per_fold,
+)
+from recommendation_data_toolbox.lottery import get_problem_manager
 
 
-def get_preds_all_subjs(
-    train_problem_ids,
-    train_decisions,
-    test_problem_ids,
-    model,
-    **kwargs,
-):
+def benchmark_model(model: str, dataset: str):
     if model in [
         "ubcf",
         "ibcf",
-        "decision_tree",
-        "naive_bayes",
+        "cf_decision_tree",
+        "cf_naive_bayes",
         "latent_factor",
     ]:
-        return get_cf_preds_all_subjs(
-            train_problem_ids,
-            train_decisions,
-            test_problem_ids,
-            model,
-            **kwargs,
+        experiment_filename = f"MockExperimentData_{dataset}.csv"
+        preexperiment_filename = f"MockPreexperimentData_{dataset}.csv"
+
+        experiment_data = pd.read_csv(
+            get_fullpath_to_datafile(experiment_filename)
         )
-    else:
-        raise ValueError
 
+        experiment_rating_matrix_df = get_rating_matrix_df(experiment_data)
+        problem_ids = np.arange(experiment_rating_matrix_df.shape[-1])
 
-def benchmark_model_per_fold(
-    experiment_rating_matrix_df: pd.DataFrame,
-    fold_num: int,
-    train_problem_ids: npt.NDArray[np.int_],
-    test_problem_ids: npt.NDArray[np.int_],
-    model: str,
-    **kwargs,
-):
-    subj_ids = experiment_rating_matrix_df.index.tolist()
-    experiment_rating_matrix = experiment_rating_matrix_df.values
-    train_decisions = experiment_rating_matrix[:, train_problem_ids]
-    test_decisions = experiment_rating_matrix[:, test_problem_ids]
-
-    preds = get_preds_all_subjs(
-        train_problem_ids,
-        train_decisions,
-        test_problem_ids,
-        model,
-        **kwargs,
-    )
-    data = {
-        "fold_num": fold_num,
-        "subj_id": subj_ids,
-        "train_problem_ids": [tuple(train_problem_ids)] * len(subj_ids),
-        "train_decisions": [tuple(x) for x in train_decisions],
-        "test_problem_ids": [tuple(test_problem_ids)] * len(subj_ids),
-        "actual_decisions": [tuple(x) for x in test_decisions],
-        "predicted_decisions": [tuple(x) for x in preds],
-        "accuracy": get_accuracy(test_decisions, preds),
-    }
-    df = pd.DataFrame(
-        data, index=[f"{fold_num}_{subj_id}" for subj_id in subj_ids]
-    )
-    overall_acc_df = pd.DataFrame(
-        {
-            "fold_num": fold_num,
-            "subj_id": "overall",
-            "train_problem_ids": np.nan,
-            "train_decisions": np.nan,
-            "test_problem_ids": np.nan,
-            "actual_decisions": np.nan,
-            "predicted_decisions": np.nan,
-            "accuracy": get_accuracy(test_decisions.flatten(), preds.flatten()),
-        },
-        index=["f{fold_num}_overall"],
-    )
-    return pd.concat([overall_acc_df, df])
-
-
-def benchmark_model(
-    model: str,
-    experiment_filename: Optional[str] = None,
-    preexperiment_filename: Optional[str] = None,
-):
-    if experiment_filename == None:
-        experiment_filename = "MockExperimentData.csv"
-    experiment_data = pd.read_csv(get_fullpath_to_datafile(experiment_filename))
-
-    experiment_rating_matrix_df = get_rating_matrix_df(experiment_data)
-    problem_ids = np.arange(experiment_rating_matrix_df.shape[-1])
-
-    kf = KFold(n_splits=5, random_state=1234, shuffle=True)
-    df = pd.concat(
-        [
-            benchmark_model_per_fold(
+        if dataset == "CPC15":
+            kf = KFold(n_splits=5, random_state=1234, shuffle=True)
+            df = pd.concat(
+                [
+                    benchmark_cf_model_per_fold(
+                        experiment_rating_matrix_df=experiment_rating_matrix_df,
+                        fold_num=fold_num,
+                        train_problem_ids=problem_ids[train_idx],
+                        test_problem_ids=problem_ids[test_idx],
+                        model=model,
+                        preexperiment_filename=preexperiment_filename,
+                    )
+                    for fold_num, (train_idx, test_idx) in enumerate(
+                        kf.split(problem_ids)
+                    )
+                ]
+            )
+            overall_acc_df = pd.DataFrame(
+                {
+                    "fold_num": "overall",
+                    "subj_id": np.nan,
+                    "train_problem_ids": np.nan,
+                    "train_decisions": np.nan,
+                    "test_problem_ids": np.nan,
+                    "actual_decisions": np.nan,
+                    "predicted_decisions": np.nan,
+                    "accuracy": df["accuracy"][
+                        df["subj_id"] == "overall"
+                    ].mean(),
+                    "feature_importances": np.nan,
+                },
+                index=["overall"],
+            )
+            return pd.concat([overall_acc_df, df]).dropna(axis=1, how="all")
+        elif dataset == "preexperiment":
+            return benchmark_cf_model_per_fold(
                 experiment_rating_matrix_df=experiment_rating_matrix_df,
-                fold_num=fold_num,
-                train_problem_ids=problem_ids[train_idx],
-                test_problem_ids=problem_ids[test_idx],
+                fold_num=0,
+                train_problem_ids=problem_ids[:60],
+                test_problem_ids=problem_ids[60:],
                 model=model,
                 preexperiment_filename=preexperiment_filename,
+            ).dropna(axis=1, how="all")
+    elif model in ["content_based_decision_tree", "content_based_naive_bayes"]:
+        rating_data_filename = f"Data_{dataset}.csv"
+        data = pd.read_csv(get_fullpath_to_datafile(rating_data_filename))
+        rating_matrix_df = get_rating_matrix_df(data)
+        problem_ids = np.arange(rating_matrix_df.shape[-1])
+
+        problems_filename = f"Problems_{dataset}.csv"
+        problem_manager = get_problem_manager(
+            pd.read_csv(get_fullpath_to_datafile(problems_filename))
+        )
+        if dataset == "CPC15":
+            kf = KFold(n_splits=5, random_state=1234, shuffle=True)
+            df = pd.concat(
+                [
+                    benchmark_content_based_model_per_fold(
+                        rating_matrix_df=rating_matrix_df,
+                        fold_num=fold_num,
+                        train_problem_ids=problem_ids[train_idx],
+                        test_problem_ids=problem_ids[test_idx],
+                        model=model,
+                        problem_manager=problem_manager,
+                    )
+                    for fold_num, (train_idx, test_idx) in enumerate(
+                        kf.split(problem_ids)
+                    )
+                ]
             )
-            for fold_num, (train_idx, test_idx) in enumerate(
-                kf.split(problem_ids)
+            overall_acc_df = pd.DataFrame(
+                {
+                    "fold_num": "overall",
+                    "subj_id": np.nan,
+                    "train_problem_ids": np.nan,
+                    "train_decisions": np.nan,
+                    "test_problem_ids": np.nan,
+                    "actual_decisions": np.nan,
+                    "predicted_decisions": np.nan,
+                    "accuracy": df["accuracy"][
+                        df["subj_id"] == "overall"
+                    ].mean(),
+                    "feature_importances": np.nan,
+                },
+                index=["overall"],
             )
-        ]
-    )
-    overall_acc_df = pd.DataFrame(
-        {
-            "fold_num": "overall",
-            "subj_id": np.nan,
-            "train_problem_ids": np.nan,
-            "train_decisions": np.nan,
-            "test_problem_ids": np.nan,
-            "actual_decisions": np.nan,
-            "predicted_decisions": np.nan,
-            "accuracy": df["accuracy"][df["subj_id"] == "overall"].mean(),
-        },
-        index=["overall"],
-    )
-    df = pd.concat([overall_acc_df, df])
-    df.to_csv(get_fullpath_to_datafile(f"benchmark_{model}.csv"), index=False)
+            return pd.concat([overall_acc_df, df]).dropna(axis=1, how="all")
+        elif dataset == "preexperiment":
+            return benchmark_content_based_model_per_fold(
+                rating_matrix_df=rating_matrix_df,
+                fold_num=0,
+                train_problem_ids=problem_ids[:60],
+                test_problem_ids=problem_ids[60:],
+                model=model,
+                problem_manager=problem_manager,
+            ).dropna(axis=1, how="all")

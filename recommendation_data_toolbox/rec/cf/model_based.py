@@ -14,38 +14,40 @@ class DecisionTreeRecommender(CfRecommender):
     def __init__(
         self,
         rating_matrix: npt.NDArray[np.int_],
-        subj_lot_pair_ids: npt.NDArray[np.int_],
+        subj_problem_ids: npt.NDArray[np.int_],
         subj_decisions: npt.NDArray[np.int_],
     ):
-        super().__init__(rating_matrix, subj_lot_pair_ids, subj_decisions)
+        super().__init__(rating_matrix, subj_problem_ids, subj_decisions)
+        self.X = self.rating_matrix[:, self.subj_problem_ids]
         self.clf = DecisionTreeClassifier()
 
-    def rec(self, lot_pair_id: int):
-        X = self.rating_matrix[:, self.subj_lot_pair_ids]
-        y = self.rating_matrix[:, lot_pair_id]
-
-        self.clf.fit(X, y)
-
+    def _rec(self, problem_id: int):
+        y = self.rating_matrix[:, problem_id]
+        self.clf.fit(self.X, y)
         return self.clf.predict([self.subj_decisions])[0]
+
+    def rec(self, problem_ids: npt.NDArray[np.int_]):
+        return np.array([self._rec(problem_id) for problem_id in problem_ids])
 
 
 class NaiveBayesRecommender(CfRecommender):
     def __init__(
         self,
         rating_matrix: npt.NDArray[np.int_],
-        subj_lot_pair_ids: npt.NDArray[np.int_],
+        subj_problem_ids: npt.NDArray[np.int_],
         subj_decisions: npt.NDArray[np.int_],
     ):
-        super().__init__(rating_matrix, subj_lot_pair_ids, subj_decisions)
+        super().__init__(rating_matrix, subj_problem_ids, subj_decisions)
+        self.X = self.rating_matrix[:, self.subj_problem_ids]
         self.clf = GaussianNB()
 
-    def rec(self, lot_pair_id: int):
-        X = self.rating_matrix[:, self.subj_lot_pair_ids]
-        y = self.rating_matrix[:, lot_pair_id]
-
-        self.clf.fit(X, y)
-
+    def _rec(self, problem_id: int):
+        y = self.rating_matrix[:, problem_id]
+        self.clf.fit(self.X, y)
         return self.clf.predict([self.subj_decisions])[0]
+
+    def rec(self, problem_ids: npt.NDArray[np.int_]):
+        return np.array([self._rec(problem_id) for problem_id in problem_ids])
 
 
 def initialize_UV(m: int, n: int, k: int):
@@ -137,31 +139,31 @@ def get_mf_probs(
     U: npt.NDArray[np.int_],
     V: npt.NDArray[np.int_],
     subj_id: int,
-    lot_pair_id: int,
+    problem_ids: npt.NDArray[np.int_],
 ):
-    return np.dot(U[subj_id, :], V[lot_pair_id, :])
+    return np.dot(V[problem_ids, :], U[subj_id, :])
 
 
 class LatentFactorRecommender(CfRecommender):
     def __init__(
         self,
         rating_matrix: npt.NDArray[np.int_],
-        subj_lot_pair_ids: npt.NDArray[np.int_],
+        subj_problem_ids: npt.NDArray[np.int_],
         subj_decisions: npt.NDArray[np.int_],
         optimization_method: Literal["sgd", "als"] = "als",
     ):
-        super().__init__(rating_matrix, subj_lot_pair_ids, subj_decisions)
+        super().__init__(rating_matrix, subj_problem_ids, subj_decisions)
 
         rating_vector = np.zeros((self.rating_matrix.shape[-1],))
-        rating_vector[self.subj_lot_pair_ids] = self.subj_decisions
+        rating_vector[self.subj_problem_ids] = self.subj_decisions
         R = np.vstack((self.rating_matrix, rating_vector))
 
         self.U, self.V = (mf_sgd if optimization_method == "sgd" else mf_als)(R)
 
-    def rec(self, lot_pair_id: int):
+    def rec(self, problem_ids: npt.NDArray[np.int_]):
         return int(
             get_mf_probs(
-                U=self.U, V=self.V, subj_id=-1, lot_pair_id=lot_pair_id
+                U=self.U, V=self.V, subj_id=-1, problem_ids=problem_ids
             )
             >= 0.5
         )

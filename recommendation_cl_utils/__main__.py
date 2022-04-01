@@ -48,15 +48,12 @@ def generate_estimated_parameters(
 
 
 def generate_mock_experiment_data():
-    preexperiment_data, experiment_data, lot_pairs = get_mock_data()
+    preexperiment_data, experiment_data = get_mock_data()
     preexperiment_data.to_csv(
         get_fullpath_to_datafile("MockPreexperimentData.csv"), index=False
     )
     experiment_data.to_csv(
         get_fullpath_to_datafile("MockExperimentData.csv"), index=False
-    )
-    lot_pairs.to_csv(
-        get_fullpath_to_datafile("MockBinaryChoices.csv"), index=False
     )
 
 
@@ -89,7 +86,15 @@ def main():
     parser.add_argument(
         "--with-constraints", dest="isWithConstraints", action="store_true"
     )
+
     parser.add_argument("--rec-model", type=str, dest="recModel")
+    parser.add_argument(
+        "--experiment-filename", type=str, dest="experimentFilename"
+    )
+    parser.add_argument(
+        "--preexperiment-filename", type=str, dest="preexperimentFilename"
+    )
+
     args = parser.parse_args()
     if args.action == "generate_intermediate_data":
         generate_intermediate_data(args.experiment_number)
@@ -104,7 +109,9 @@ def main():
     elif args.action == "generate_mock_experiment_data":
         generate_mock_experiment_data()
     elif args.action == "benchmark":
-        benchmark_model(args.recModel)
+        benchmark_model(
+            args.recModel, args.experimentFilename, args.preexperimentFilename
+        )
 
 
 if __name__ == "__main__":

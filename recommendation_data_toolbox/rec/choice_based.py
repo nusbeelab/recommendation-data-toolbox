@@ -4,7 +4,7 @@ import numpy as np
 from recommendation_data_toolbox.lottery import (
     DecisionHistory,
     Lottery,
-    LotteryPair,
+    Problem,
 )
 from recommendation_data_toolbox.lottery_utility import get_lottery_utility_func
 from recommendation_data_toolbox.mle import estimate_max_lik_params
@@ -18,10 +18,10 @@ def stack_ocs_and_probs(lotteries: List[Lottery]):
     return ocs, probs
 
 
-def stack_lottery_pairs(lottery_pairs: List[LotteryPair]):
-    a_lotteries = [lot_pair.a for lot_pair in lottery_pairs]
-    b_lotteries = [lot_pair.b for lot_pair in lottery_pairs]
-    return *stack_ocs_and_probs(a_lotteries), *stack_ocs_and_probs(b_lotteries)
+def stack_problems(problems: List[Problem]):
+    a_problems = [prob.a for prob in problems]
+    b_problems = [prob.b for prob in problems]
+    return *stack_ocs_and_probs(a_problems), *stack_ocs_and_probs(b_problems)
 
 
 class LotteryUtilityRecommender(Recommender):
@@ -39,7 +39,7 @@ class LotteryUtilityRecommender(Recommender):
         self.params = params
 
     def fit(self, his: DecisionHistory):
-        a_ocs, a_probs, b_ocs, b_probs = stack_lottery_pairs(his.lottery_pairs)
+        a_ocs, a_probs, b_ocs, b_probs = stack_problems(his.lottery_pairs)
         res = estimate_max_lik_params(
             a_ocs=a_ocs,
             a_probs=a_probs,
@@ -60,7 +60,7 @@ class LotteryUtilityRecommender(Recommender):
             self.params, lot.objective_consequences, lot.probs
         )
 
-    def rec(self, lottery_pair: LotteryPair):
+    def rec(self, lottery_pair: Problem):
         return self.get_utility(lottery_pair.a) < self.get_utility(
             lottery_pair.b
         )

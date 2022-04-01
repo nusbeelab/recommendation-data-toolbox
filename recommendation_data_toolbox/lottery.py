@@ -37,33 +37,31 @@ class Lottery:
         return f"objective_consequences: {self.objective_consequences}; probs: {self.probs}"
 
 
-class LotteryPair:
+class Problem:
     def __init__(self, a: Lottery, b: Lottery):
         self.a = a
         self.b = b
 
     def __eq__(self, o):
-        return isinstance(o, LotteryPair) and self.a == o.a and self.b == o.b
+        return isinstance(o, Problem) and self.a == o.a and self.b == o.b
 
 
-class LotteryPairManager:
+class ProblemManager:
     def __init__(
-        self, lot_pairs: List[LotteryPair], labels: Optional[List[str]] = None
+        self, problems: List[Problem], labels: Optional[List[str]] = None
     ):
-        self.lot_pairs = list(lot_pairs)
+        self.problems = list(problems)
         self.labels = None if labels == None else list(labels)
 
-    def convert_lottery_pairs_to_ids(self, lottery_pairs: List[LotteryPair]):
+    def convert_lottery_pairs_to_ids(self, problems: List[Problem]):
         try:
             return [
                 # manually check for equal lottery pairs instead of pre-compute
                 # a hashmap so as to avoid calling hash on float attributes.
                 next(
-                    i
-                    for i, lot_pair in enumerate(self.lot_pairs)
-                    if lot_pair == lottery_pair
+                    i for i, prob in enumerate(self.problems) if prob == problem
                 )
-                for lottery_pair in lottery_pairs
+                for problem in problems
             ]
         except StopIteration:
             raise ValueError(
@@ -71,4 +69,4 @@ class LotteryPairManager:
             )
 
     def convert_ids_to_lottery_pairs(self, ids: List[int]):
-        return [self.lot_pairs[id] for id in ids]
+        return [self.problems[id] for id in ids]

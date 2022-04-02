@@ -19,17 +19,15 @@ def get_lot_features(lot: Lottery):
     least_likely = lot.objective_consequences[lot.probs.argmin()]
     consequence_num = len(lot.objective_consequences)
     expectation = sum(lot.objective_consequences * lot.probs)
-    sd = (
-        sum(lot.objective_consequences**2 * lot.probs) - expectation**2
-    ) ** 0.5
+    var = sum(lot.objective_consequences**2 * lot.probs) - expectation**2
     skewness = (
         (
             sum(lot.objective_consequences**3 * lot.probs)
-            - 3 * expectation * (sd**2)
+            - 3 * expectation * var
             - expectation**3
         )
-        / (sd**3)
-        if sd != 0
+        / (var**1.5)
+        if var != 0
         else 0
     )
     is_certain = len(lot.objective_consequences) == 1
@@ -42,7 +40,7 @@ def get_lot_features(lot: Lottery):
             least_likely,
             consequence_num,
             expectation,
-            sd,
+            var,
             skewness,
             is_certain,
         ]
@@ -79,10 +77,6 @@ def fosd(a: Lottery, b: Lottery):
 def get_features_per_problem(problem: Problem):
     a_features = get_lot_features(problem.a)
     b_features = get_lot_features(problem.b)
-    # high_ratio = b_features[0] / a_features[0]
-    # low_ratio = b_features[1] / a_features[1]
-    # most_likely_ratio = b_features[3] / a_features[3]
-    # least_likely_ratio = b_features[4] / a_features[4]
     consequence_num_ratio = b_features[5] / a_features[5]
     expectation_ratio = b_features[6] / a_features[6]
     fosd_a_over_b = fosd(problem.a, problem.b)
@@ -94,10 +88,6 @@ def get_features_per_problem(problem: Problem):
             b_features - a_features,
             np.array(
                 [
-                    # high_ratio,
-                    # low_ratio,
-                    # most_likely_ratio,
-                    # least_likely_ratio,
                     consequence_num_ratio,
                     expectation_ratio,
                     fosd_a_over_b,

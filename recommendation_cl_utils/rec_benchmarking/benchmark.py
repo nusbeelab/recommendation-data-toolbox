@@ -80,7 +80,7 @@ def benchmark_model(model: str, dataset: str):
         rating_matrix_df = get_rating_matrix_df(data)
         problem_ids = np.arange(rating_matrix_df.shape[-1])
 
-        problems_filename = f"Problems_{dataset}.csv"
+        problems_filename = f"Problems_{'RecProj' if dataset in ['preexperiment', 'experiment'] else dataset}.csv"
         problem_manager = get_problem_manager(
             pd.read_csv(get_fullpath_to_datafile(problems_filename))
         )

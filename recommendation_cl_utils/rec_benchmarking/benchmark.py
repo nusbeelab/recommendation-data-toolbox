@@ -2,25 +2,22 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
 
+from recommendation_data_toolbox.lottery import get_problem_manager
+
 from recommendation_cl_utils.utils import get_fullpath_to_datafile
 from recommendation_cl_utils.rec_benchmarking.common import get_rating_matrix_df
 from recommendation_cl_utils.rec_benchmarking.cf import (
+    CF_RECOMMENDERS,
     benchmark_cf_model_per_fold,
 )
 from recommendation_cl_utils.rec_benchmarking.content_based import (
+    CONTENT_BASED_RECOMMENDERS,
     benchmark_content_based_model_per_fold,
 )
-from recommendation_data_toolbox.lottery import get_problem_manager
 
 
 def benchmark_model(model: str, dataset: str):
-    if model in [
-        "ubcf",
-        "ibcf",
-        "cf_decision_tree",
-        "cf_naive_bayes",
-        "latent_factor",
-    ]:
+    if model in CF_RECOMMENDERS:
         experiment_filename = f"MockExperimentData_{dataset}.csv"
         preexperiment_filename = f"MockPreexperimentData_{dataset}.csv"
 
@@ -74,7 +71,7 @@ def benchmark_model(model: str, dataset: str):
                 model=model,
                 preexperiment_filename=preexperiment_filename,
             ).dropna(axis=1, how="all")
-    elif model in ["content_based_decision_tree", "content_based_naive_bayes"]:
+    elif model in CONTENT_BASED_RECOMMENDERS:
         rating_data_filename = f"Data_{dataset}.csv"
         data = pd.read_csv(get_fullpath_to_datafile(rating_data_filename))
         rating_matrix_df = get_rating_matrix_df(data)

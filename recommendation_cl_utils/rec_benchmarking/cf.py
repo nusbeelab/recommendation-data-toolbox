@@ -27,6 +27,8 @@ CF_RECOMMENDER_CLASSES: Dict[str, Type[CfRecommender]] = {
     "latent_factor": LatentFactorRecommender,
 }
 
+CF_RECOMMENDERS = CF_RECOMMENDER_CLASSES.keys()
+
 
 def get_cf_preds_per_subj(
     rating_matrix,

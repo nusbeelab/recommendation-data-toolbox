@@ -1,23 +1,30 @@
-from typing import Dict, Literal
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
-from recommendation_cl_utils.utils import get_accuracy
+
+from typing import Dict, Type
+import numpy.typing as npt
+
 from recommendation_data_toolbox.lottery import ProblemManager
 
 from recommendation_data_toolbox.rec.content_based import (
     ContentBasedDecisionTreeRecommender,
+    ContentBasedGradientBoostingRecommender,
     ContentBasedNaiveBayesRecommender,
+    ContentBasedRandomForestRecommender,
     ContentBasedRecommender,
 )
 
-CONTENT_BASED_RECOMMENDER_CLASSES: Dict[
-    Literal["content_based_decision_tree", "content_based_naive_bayes"],
-    ContentBasedRecommender,
-] = {
+from recommendation_cl_utils.utils import get_accuracy
+
+CONTENT_BASED_RECOMMENDER_CLASSES: Dict[str, Type[ContentBasedRecommender]] = {
     "content_based_decision_tree": ContentBasedDecisionTreeRecommender,
+    "content_based_random_forest": ContentBasedRandomForestRecommender,
+    "content_based_gradient_boosting": ContentBasedGradientBoostingRecommender,
+    # "content_based_xgboost": ContentBasedXgboostRecommender,
     "content_based_naive_bayes": ContentBasedNaiveBayesRecommender,
 }
+
+CONTENT_BASED_RECOMMENDERS = CONTENT_BASED_RECOMMENDER_CLASSES.keys()
 
 
 def get_content_based_preds_and_feature_importances_per_subj(
@@ -26,11 +33,9 @@ def get_content_based_preds_and_feature_importances_per_subj(
     subj_decisions: npt.NDArray,
     subj_test_problem_ids: npt.NDArray,
     subj_test_decisions: npt.NDArray,
-    model: Literal["content_based_decision_tree", "content_based_naive_bayes"],
+    model: str,
 ):
-    recommender: ContentBasedRecommender = CONTENT_BASED_RECOMMENDER_CLASSES[
-        model
-    ](
+    recommender = CONTENT_BASED_RECOMMENDER_CLASSES[model](
         problem_manager=problem_manager,
         subj_problem_ids=subj_problem_ids,
         subj_decisions=subj_decisions,

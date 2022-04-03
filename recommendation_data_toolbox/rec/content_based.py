@@ -1,10 +1,11 @@
 from abc import abstractmethod
-from typing import List
 import numpy as np
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.inspection import permutation_importance
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 
+from typing import List
 import numpy.typing as npt
 
 from recommendation_data_toolbox.lottery import Lottery, Problem, ProblemManager
@@ -128,7 +129,7 @@ class ContentBasedRecommender(Recommender):
         return self.clf.predict(input_X)
 
     @abstractmethod
-    def get_feature_importance(self):
+    def get_feature_importance(self, **kwargs):
         pass
 
 
@@ -148,6 +149,60 @@ class ContentBasedDecisionTreeRecommender(ContentBasedRecommender):
 
     def get_feature_importance(self, **kwargs):
         return self.clf.feature_importances_
+
+
+class ContentBasedRandomForestRecommender(ContentBasedRecommender):
+    def __init__(
+        self,
+        problem_manager: ProblemManager,
+        subj_problem_ids: npt.NDArray[np.int_],
+        subj_decisions: npt.NDArray[np.int_],
+    ):
+        super().__init__(
+            problem_manager,
+            subj_problem_ids,
+            subj_decisions,
+            RandomForestClassifier(),
+        )
+
+    def get_feature_importance(self, **kwargs):
+        return self.clf.feature_importances_
+
+
+class ContentBasedGradientBoostingRecommender(ContentBasedRecommender):
+    def __init__(
+        self,
+        problem_manager: ProblemManager,
+        subj_problem_ids: npt.NDArray[np.int_],
+        subj_decisions: npt.NDArray[np.int_],
+    ):
+        super().__init__(
+            problem_manager,
+            subj_problem_ids,
+            subj_decisions,
+            GradientBoostingClassifier(),
+        )
+
+    def get_feature_importance(self, **kwargs):
+        return self.clf.feature_importances_
+
+
+# class ContentBasedXgboostRecommender(ContentBasedRecommender):
+#     def __init__(
+#         self,
+#         problem_manager: ProblemManager,
+#         subj_problem_ids: npt.NDArray[np.int_],
+#         subj_decisions: npt.NDArray[np.int_],
+#     ):
+#         super().__init__(
+#             problem_manager,
+#             subj_problem_ids,
+#             subj_decisions,
+#             XGBClassifier(),
+#         )
+
+#     def get_feature_importance(self, **kwargs):
+#         return self.clf.feature_importances_
 
 
 class ContentBasedNaiveBayesRecommender(ContentBasedRecommender):

@@ -13,7 +13,7 @@ class CfRecommender(Recommender):
         subj_problem_ids: npt.NDArray[np.int_],
         subj_decisions: npt.NDArray[np.int_],
     ):
-        self.rating_matrix = rating_matrix
+        self.rating_matrix = np.array(rating_matrix)
 
         order = subj_problem_ids.argsort()
         self.subj_problem_ids = subj_problem_ids[order]

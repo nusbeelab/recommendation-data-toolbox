@@ -11,7 +11,12 @@ from recommendation_data_toolbox.rec import (
 class TestRec(unittest.TestCase):
     def test_noneRecommender(self):
         recommender = NoneRecommender()
-        self.assertTrue(recommender.rec(np.array([1, 5, 2])) is None)
+        self.assertTrue(
+            np.array_equal(
+                recommender.rec(np.array([1, 5, 2])),
+                np.array([None, None, None]),
+            )
+        )
 
     def test_mostPopularChoiceRecommender(self):
         recommender = MostPopularChoiceRecommender()

@@ -17,7 +17,7 @@ class Recommender(metaclass=ABCMeta):
 
 class NoneRecommender(Recommender):
     def rec(self, problem_ids: npt.NDArray[np.int_]):
-        return None
+        return np.array([None for _ in problem_ids])
 
 
 class RandomRecommender(Recommender):

@@ -116,17 +116,14 @@ class ContentBasedRecommender(Recommender):
         X = get_problem_features(
             self.problem_manager.convert_ids_to_problems(subj_problem_ids)
         )
-        for x in X:
-            if np.any(np.isnan(x)):
-                print(x)
         y = subj_decisions
         self.clf.fit(X, y)
 
-    def rec(self, problem_ids: npt.NDArray[np.int_]):
+    def rec_proba(self, problem_ids: npt.NDArray[np.int_]):
         input_X = get_problem_features(
             self.problem_manager.convert_ids_to_problems(problem_ids)
         )
-        return self.clf.predict(input_X)
+        return self.clf.predict_proba(input_X)
 
     @abstractmethod
     def get_feature_importance(self, **kwargs):

@@ -22,13 +22,15 @@ class ClassificationModelBasedRecommender(CfRecommender):
         self.X = self.rating_matrix[:, self.subj_problem_ids]
         self.clf = clf
 
-    def _rec(self, problem_id: int):
+    def _rec_proba(self, problem_id: int):
         y = self.rating_matrix[:, problem_id]
         self.clf.fit(self.X, y)
-        return self.clf.predict([self.subj_decisions])[0]
+        return self.clf.predict_proba([self.subj_decisions])[0]
 
-    def rec(self, problem_ids: npt.NDArray[np.int_]):
-        return np.array([self._rec(problem_id) for problem_id in problem_ids])
+    def rec_proba(self, problem_ids: npt.NDArray[np.int_]):
+        return np.array(
+            [self._rec_proba(problem_id) for problem_id in problem_ids]
+        )
 
 
 class CfDecisionTreeRecommender(ClassificationModelBasedRecommender):
@@ -173,10 +175,5 @@ class LatentFactorRecommender(CfRecommender):
 
         self.U, self.V = (mf_sgd if optimization_method == "sgd" else mf_als)(R)
 
-    def rec(self, problem_ids: npt.NDArray[np.int_]):
-        return (
-            get_mf_probs(
-                U=self.U, V=self.V, subj_id=-1, problem_ids=problem_ids
-            )
-            >= 0.5
-        ).astype(int)
+    def rec_proba(self, problem_ids: npt.NDArray[np.int_]):
+        return np.dot(self.V[problem_ids, :], self.U[-1, :])

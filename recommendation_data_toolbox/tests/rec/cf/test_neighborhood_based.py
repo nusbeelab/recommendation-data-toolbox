@@ -33,9 +33,9 @@ class TestUserBased(unittest.TestCase):
         # 3 nearest neighbours are rows 0, 1, 3
         # their decisions for problem_id == 0 are 1, 1, 0
         # thus the expected recommendation is 1
-        expected_rec = 1
+        expected_rec = np.array([1])
         actual_rec = recommender.rec(np.array([3]))
-        self.assertEqual(actual_rec, expected_rec)
+        self.assertTrue(np.array_equal(actual_rec, expected_rec))
 
     def test_ibcfRecommender(self):
         recommender = IbcfRecommender(
@@ -47,9 +47,9 @@ class TestUserBased(unittest.TestCase):
         # 3 nearest neighbours are columns 0, 1, 4
         # subject's decisions for problem_id == 0, 1, 4 are 1, 1, 0
         # thus the expected recommendation is 1
-        expected_rec = 1
+        expected_rec = np.array([1])
         actual_rec = recommender.rec(np.array([3]))
-        self.assertEqual(actual_rec, expected_rec)
+        self.assertTrue(np.array_equal(actual_rec, expected_rec))
 
 
 if __name__ == "__main__":

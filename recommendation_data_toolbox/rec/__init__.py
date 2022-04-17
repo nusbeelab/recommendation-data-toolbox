@@ -1,44 +1,51 @@
 from abc import ABCMeta, abstractmethod
+import importlib.resources
 import numpy as np
 import pandas as pd
-import importlib.resources
 
-from typing import Optional
 import numpy.typing as npt
 
 
 class Recommender(metaclass=ABCMeta):
     @abstractmethod
-    def rec(
+    def rec_proba(
         self, problem_ids: npt.NDArray[np.int_]
-    ) -> Optional[npt.NDArray[np.bool_]]:
+    ) -> npt.NDArray[np.float64]:
         pass
+
+    def rec(self, problem_ids: npt.NDArray[np.int_]):
+        probs = self.rec_proba(problem_ids)
+        recs = np.empty(probs.shape)
+        recs[:] = np.nan
+        mask = ~np.isnan(probs)
+        recs[mask] = probs[mask] >= 0.5
+        return recs
 
 
 class NoneRecommender(Recommender):
-    def rec(self, problem_ids: npt.NDArray[np.int_]):
-        return np.array([None for _ in problem_ids])
+    def rec_proba(self, problem_ids: npt.NDArray[np.int_]):
+        return np.array([None for _ in problem_ids], dtype=np.float64)
 
 
 class RandomRecommender(Recommender):
-    def rec(self, problem_ids: npt.NDArray[np.int_]):
-        return np.random.randint(2, size=len(problem_ids))
+    def rec_proba(self, problem_ids: npt.NDArray[np.int_]):
+        return np.random.rand(len(problem_ids))
 
 
 class MostPopularChoiceRecommender(Recommender):
     def __init__(self):
         with importlib.resources.path(
-            "recommendation_data_toolbox.resources", "majority.csv"
+            "recommendation_data_toolbox.resources",
+            "Preexperiment_OptionBFracs.csv",
         ) as file:
             df = pd.read_csv(file)
-        self.most_popular_choice_dict = {
-            (row["stage"] - 1) * 60
-            + row["problem"]
-            - 1: row["most popular choice"]
+        self._optionB_fracs = {
+            int(row["problem_id"]): row["optionB_frac"]
             for _, row in df.iterrows()
         }
 
-    def rec(self, problem_ids: npt.NDArray[np.int_]):
+    def rec_proba(self, problem_ids: npt.NDArray[np.int_]):
         return np.array(
-            [self.most_popular_choice_dict[id] for id in problem_ids]
+            [self._optionB_fracs.get(id, np.nan) for id in problem_ids],
+            dtype=np.float64,
         )

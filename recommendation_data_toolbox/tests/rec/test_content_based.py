@@ -1,9 +1,10 @@
 import unittest
 
 import numpy as np
-from recommendation_data_toolbox.lottery import Lottery, Problem
+from recommendation_data_toolbox.lottery import Lottery, Problem, ProblemManager
 
 from recommendation_data_toolbox.rec.content_based import (
+    ContentBasedRandomForestRecommender,
     fosd,
     get_features_per_problem,
     get_lot_features,
@@ -94,6 +95,18 @@ class TestContentBased(unittest.TestCase):
         lot_b = Lottery([2, 3, 1], [0.2, 0.6, 0.2])
         self.assertFalse(fosd(lot_a, lot_b))
         self.assertFalse(fosd(lot_b, lot_a))
+
+    def test_contentBasedRecommender(self):
+        problem_manager = ProblemManager(PROBLEMS)
+        subj_problem_ids = np.array([2, 4, 0, 1])
+        subj_decisions = np.array([0, 0, 1, 1])
+        recommender = ContentBasedRandomForestRecommender(
+            problem_manager, subj_problem_ids, subj_decisions
+        )
+        prob = recommender.rec_proba(np.array([3]))
+        self.assertEqual(prob.shape, (1,))
+        self.assertGreaterEqual(prob[0], 0)
+        self.assertLessEqual(prob[0], 1)
 
 
 if __name__ == "__main__":

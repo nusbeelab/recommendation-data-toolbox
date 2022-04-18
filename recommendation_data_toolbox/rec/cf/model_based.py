@@ -25,7 +25,7 @@ class ClassificationModelBasedRecommender(CfRecommender):
     def _rec_proba(self, problem_id: int):
         y = self.rating_matrix[:, problem_id]
         self.clf.fit(self.X, y)
-        return self.clf.predict_proba([self.subj_decisions])[0]
+        return self.clf.predict_proba([self.subj_decisions])[0, 1]
 
     def rec_proba(self, problem_ids: npt.NDArray[np.int_]):
         return np.array(

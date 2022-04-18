@@ -123,7 +123,7 @@ class ContentBasedRecommender(Recommender):
         input_X = get_problem_features(
             self.problem_manager.convert_ids_to_problems(problem_ids)
         )
-        return self.clf.predict_proba(input_X)
+        return self.clf.predict_proba(input_X)[:, 1]
 
     @abstractmethod
     def get_feature_importance(self, **kwargs):

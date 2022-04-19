@@ -34,9 +34,14 @@ class UbcfRecommender(NbcfRecommender):
     def rec_proba(self, problem_ids: npt.NDArray[np.int_]):
         X = self.rating_matrix[:, self.subj_problem_ids]
         y = self.rating_matrix[:, problem_ids]
+        if len(problem_ids) == 1:
+            y = y.ravel()
 
         self.clf.fit(X, y)
-        return self.clf.predict_proba([self.subj_decisions])[:, 1]
+        probas = self.clf.predict_proba([self.subj_decisions])
+        if len(problem_ids) == 1:
+            return np.array([probas[0, 1]])
+        return np.array([probs[0, 1] for probs in probas])
 
 
 class IbcfRecommender(NbcfRecommender):
